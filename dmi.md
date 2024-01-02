@@ -303,13 +303,15 @@ From these key takeaways, we have established the following guidelines as DMI wh
 - Test doubles should be avoided whenever possible. If they are required, the priority order of desirability is inversely correlated with the level of complexity. From most desirable to least should be: stub, dummy, spy, fake, mock.
 - 
 
-## is this just clean architecture or hexagonal architecture?
+## Is this just clean architecture or hexagonal architecture?
 
-For anyone familiar with Uncle Bob's clean architecture or the hexagon architecture proposed by Xxx, It could seem that DMI is the same thing. However, both of those are architectural philosophies. DMI is about designing software entities, specifically classes, functions, and structs. The philosophies certainly have significant parallels, and DMI absolutely interplays with these architectural paradigms.
+For anyone familiar with [Uncle Bob's clean architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) or [Alistair Cockburn's hexagonal architecture](https://alistair.cockburn.us/hexagonal-architecture), It could seem that DMI is the same thing. However, both of those are architectural philosophies. DMI is about designing software entities, specifically classes, functions, and structs. The philosophies certainly have significant parallels, and DMI absolutely interplays with these architectural paradigms.
 
 
 ## References
 - Martin, R. (n.d.). Principles of OOD. butunclebob.com. Retrieved December 28, 2023, from http://butunclebob.com/ArticleS.UncleBob.PrinciplesOfOod
+- Clean Coder Blog. (2012, August 13). Retrieved January 2, 2024, from https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html
+- Cockburn, A. (2005, January 4). Hexagonal architecture. Alistair Cockburn. Retrieved January 2, 2024, from https://alistair.cockburn.us/hexagonal-architecture/
 - Martin, R. C. (2018). Clean Architecture: A Craftsman’s Guide to Software Structure and Design.
 - Iglberger, K. (2023). C++ Software Design: Design Principles and Patterns for High-Quality Software. O’Reilly Media.
 - C++ Core Guidelines. (2023, October 12). Retrieved January 2, 2024, from https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines
