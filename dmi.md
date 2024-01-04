@@ -314,6 +314,9 @@ From these key takeaways, we have established the following guidelines as DMI wh
 
 For anyone familiar with [Uncle Bob's clean architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) or [Alistair Cockburn's hexagonal architecture](https://alistair.cockburn.us/hexagonal-architecture), It could seem that DMI is the same thing. However, both of those are architectural philosophies. DMI is about designing software entities, specifically classes, functions, and structs. The philosophies certainly have significant parallels, and DMI absolutely interplays with these architectural paradigms.
 
+## Quality Code
+
+"High-quality software is easy to change, easy to extend, and easy to test." (Iglberger, 2022)
 
 ## References
 - Martin, R. (n.d.). Principles of OOD. butunclebob.com. Retrieved December 28, 2023, from http://butunclebob.com/ArticleS.UncleBob.PrinciplesOfOod
@@ -322,6 +325,9 @@ For anyone familiar with [Uncle Bob's clean architecture](https://blog.cleancode
 - Martin, R. C. (2018). Clean Architecture: A Craftsman’s Guide to Software Structure and Design.
 - Iglberger, K. (2023). C++ Software Design: Design Principles and Patterns for High-Quality Software. O’Reilly Media.
 - C++ Core Guidelines. (2023, October 12). Retrieved January 2, 2024, from https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines
+- Iglberger, Klaus. (2022). Breaking Dependencies: The Path to High-Quality Software [PowerPoint slides]. https://meetingcpp.com/mcpp/slides/2022/Breaking%20Dependencies8158.pdf.
+
+
 
 
 
