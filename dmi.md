@@ -38,7 +38,7 @@ Klaus Iglberger states SRP a bit differently as a
 
 ## Core Guidelines
 
-So what do the Cpp Core Guidelines have to say about designing classes?
+So what do the Cpp Core Guidelines have to say about designing entities?
 
 <details>
   <summary>F.8: Prefer pure functions</summary>
@@ -202,45 +202,8 @@ The snag is that many member functions that do not need to touch data members di
 * Ignore functions returning `this`.
 </details>
 
-> *Key Takeaway* Enter text here
-
-
-<details>
-  <summary>C.5: Place helper functions in the same namespace as the class they support</summary>
-  
-### <a name="Rc-helper"></a>C.5: Place helper functions in the same namespace as the class they support
-
-##### Reason
-
-A helper function is a function (usually supplied by the writer of a class) that does not need direct access to the representation of the class, yet is seen as part of the useful interface to the class.
-Placing them in the same namespace as the class makes their relationship to the class obvious and allows them to be found by argument dependent lookup.
-
-##### Example
-
-```cpp
-    namespace Chrono { // here we keep time-related services
-
-        class Time { /* ... */ };
-        class Date { /* ... */ };
-
-        // helper functions:
-        bool operator==(Date, Date);
-        Date next_weekday(Date);
-        // ...
-    }
-```
-
-##### Note
-
-This is especially important for [overloaded operators](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Ro-namespace).
-
-##### Enforcement
-
-* Flag global functions taking argument types from a single namespace.
-</details>
-
-> *Key Takeaway* Enter text here
-
+> [!Important]  
+> **_Key Takeaway_** Only make a function a member if it needs access to private data or is part of an interface 
 
 <details>
   <summary>C.8: Use `class` rather than `struct` if any member is non-public</summary>
@@ -283,7 +246,8 @@ Flag classes declared with `struct` if there is a `private` or `protected` membe
 
 </details>
 
-> *Key Takeaway* Enter text here
+> [!Important]  
+> **_Key Takeaway_** Use a struct when all data is public, and a class when there is any private data.
 
 ## Decision Making Isolation
 
