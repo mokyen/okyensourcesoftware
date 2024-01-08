@@ -302,7 +302,7 @@ For anyone familiar with [Uncle Bob's clean architecture](https://blog.cleancode
 
 
 
-
+OCP Article: https://drive.google.com/file/d/0BwhCYaYDn8EgN2M5MTkwM2EtNWFkZC00ZTI3LWFjZTUtNTFhZGZiYmUzODc1/view?resourcekey=0-FsS837CGML599A_o5D-nAw 
 
 
 
