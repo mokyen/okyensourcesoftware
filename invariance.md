@@ -124,6 +124,8 @@ As we dig further and further into this concept, we realized that there are lots
 
 ### State Design Pattern
 
+### Nontrivial Getters and Setters
+
 ## But what about when my invariants or data change?
 
 Talk about how putting data into classes doesn't necessarily help when you need to introduce an invariant later. You are guessing where that might occur if you are choosing to stick all your data in the classes just because they might change. By keeping data in small strucks that are related, it's fairly simple to make that change later. Changing from setting a variable directly to calling a setter function is it pretty minor refactor. 
