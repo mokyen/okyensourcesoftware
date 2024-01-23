@@ -2,11 +2,11 @@
 
 Writing code is relatively easy. Writing good code is hard.
 
-The SOLID principles were first published by Robert C. Martin (aka Uncle Bob). The LID are relatively easy to understand and implement. The challenging principles have always been SRP and OCP. A few years ago, I began working with some colleagues on creating more valuable unit tests. That's a story for another day, but our answer came to be that code needs to be designed better to be tested. That's led us to a design philosophy that provides practical guidance on how to design better software entities that fulfills the SOLID and particularly SRP and OCP. We call it Design Making Isolation, or DMI.
+The SOLID principles were first published by Robert C. Martin (aka Uncle Bob). For me, the LID are relatively easy to understand and implement. I've found that the challenging principles have always been SRP and OCP. A few years ago, I began working with some colleagues on creating more valuable unit tests. That's a story for another day, but our answer came to be that code needs to be designed better to be tested. That's led us to a design philosophy that provides practical guidance on how to design better software entities that fulfills the SOLID and particularly SRP and OCP that also makes code more readable, maintainable, and extensible. We call it Design Making Isolation, or DMI.
 
 ## Software Entities
 
-any feel that is as big and fast developing as software is going to be plagued with overloaded terminology. When I say 'software entity' or 'entity', I am referring to this [definition from CppReference](https://en.cppreference.com/w/cpp/language/basic_concepts):
+any field that is as big and fast developing as software is going to be plagued with overloaded terminology. When I say 'software entity' or 'entity', I am referring to this [definition from CppReference](https://en.cppreference.com/w/cpp/language/basic_concepts):
 
 > The entities of a C++ program are values, objects, references, structured bindings(since C++17), functions, enumerators, types, class members, templates, template specializations, parameter packs(since C++11), and namespaces. Preprocessor macros are not C++ entities.
 
