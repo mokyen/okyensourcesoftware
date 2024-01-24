@@ -2,25 +2,21 @@
 
 Writing code is relatively easy. Writing good code is hard.
 
-The SOLID principles were first published by Robert C. Martin (aka Uncle Bob). For me, the LID are relatively easy to understand and implement. I've found that the challenging principles have always been SRP and OCP. A few years ago, I began working with some colleagues on creating more valuable unit tests. That's a story for another day, but our answer came to be that code needs to be designed better to be tested. That's led us to a design philosophy that provides practical guidance on how to design better software entities that fulfills the SOLID and particularly SRP and OCP that also makes code more readable, maintainable, and extensible. We call it Design Making Isolation, or DMI.
+The SOLID principles were first published by Robert C. Martin (aka Uncle Bob). For me, the 'LID' are relatively easy to understand and implement. I've found that the challenging principles have always been SRP and OCP. A few years ago, I began working with some colleagues on creating more valuable unit tests. That's a story for another day, but our answer came to be that code needs to be designed better to be tested. That's led us to a design philosophy that provides practical guidance on how to design better software entities that fulfills the SOLID and particularly SRP and OCP that also makes code more readable, maintainable, and extensible. We call it Design Making Isolation, or DMI.
 
 ## Software Entities
 
-any field that is as big and fast developing as software is going to be plagued with overloaded terminology. When I say 'software entity' or 'entity', I am referring to this [definition from CppReference](https://en.cppreference.com/w/cpp/language/basic_concepts):
+Any field that is as big and fast-developing as software is going to be plagued with overloaded terminology. When I say 'software entity' or 'entity', I am referring to this [definition from CppReference](https://en.cppreference.com/w/cpp/language/basic_concepts):
 
 > The entities of a C++ program are values, objects, references, structured bindings(since C++17), functions, enumerators, types, class members, templates, template specializations, parameter packs(since C++11), and namespaces. Preprocessor macros are not C++ entities.
 
-I realize that 'entity layer' is a term in *Clean Architecture* and 'entity' is a classification in *Domain Driven Design*. It's still the best I can do.
+I realize that 'entity layer' is a term in *Clean Architecture* and 'entity' is a type of object in *Domain Driven Design*. It's still the best term I've found to date.
 
 In this blog, I am mostly talking about entities as classes, structs, and free functions.
 
-
-https://timsong-cpp.github.io/cppwp/basic#pre-3
-https://en.cppreference.com/w/cpp/language/basic_concepts
-
 ## The Challenge with SRP and OCP
 
-The 
+TBD.
 
 ### SRP
 
@@ -28,13 +24,15 @@ Among the [original definitions of SRP](http://butunclebob.com/ArticleS.UncleBob
 
 > "There should never be more than one reason for a class to change."
 
-In _Clean Architecture_, Uncle Bob refines this as:
+In *Clean Architecture*, Uncle Bob refines this as:
 
 > "A module should be responsible to one, and only one, actor."
 
 (Note that Martin states that the term 'module' here is referring to "a cohesive set of functions and data structures", not to [C++20 modules](https://en.cppreference.com/w/cpp/language/modules).)
 
-Klaus Iglberger states SRP a bit differently as a 
+Klaus Iglberger states SRP a bit differently as...
+
+### OCP
 
 ## Core Guidelines
 
@@ -45,18 +43,18 @@ So what do the Cpp Core Guidelines have to say about designing entities?
   
 ### <a name="Rf-pure"></a>F.8: Prefer pure functions
 
-##### Reason
+#### Reason
 
 Pure functions are easier to reason about, sometimes easier to optimize (and even parallelize), and sometimes can be memoized.
 
-##### Example
+#### Example
 
 ```cpp
     template<class T>
     auto square(T t) { return t * t; }
 ```
 
-##### Enforcement
+#### Enforcement
 
 Not possible.
 
@@ -70,14 +68,14 @@ Not possible.
   
 ### <a name="Rc-struct"></a>C.2: Use `class` if the class has an invariant; use `struct` if the data members can vary independently
 
-##### Reason
+#### Reason
 
 Readability.
 Ease of comprehension.
 The use of `class` alerts the programmer to the need for an invariant.
 This is a useful convention.
 
-##### Note
+#### Note
 
 An invariant is a logical condition for the members of an object that a constructor must establish for the public member functions to assume.
 After the invariant is established (typically by a constructor) every member function can be called for the object.
@@ -85,7 +83,7 @@ An invariant can be stated informally (e.g., in a comment) or more formally usin
 
 If all data members can vary independently of each other, no invariant is possible.
 
-##### Example
+#### Example
 
 ```cpp
     struct Pair {  // the members can vary independently
@@ -95,6 +93,7 @@ If all data members can vary independently of each other, no invariant is possib
 ```
 
 but:
+
 ```cpp
     class Date {
     public:
@@ -108,7 +107,7 @@ but:
     };
 ```
 
-##### Note
+#### Note
 
 If a class has any `private` data, a user cannot completely initialize an object without the use of a constructor.
 Hence, the class definer will provide a constructor and must specify its meaning.
@@ -121,25 +120,25 @@ This effectively means the definer need to define an invariant.
 * [minimize exposure of members](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-private)
 * [Avoid `protected` data](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rh-protected)
 
-##### Enforcement
+#### Enforcement
 
 Look for `struct`s with all data private and `class`es with public members.
 
 </details>
 
 > [!Important]  
-> **_Key Takeaway_** Classes should be used when an invariance exists. If no invariances exist, use a struct. This concept is so important that there is an (article dedicated just to invariance)[https://github.com/mokyen/okyensourcesoftware/blob/main/invariance.md].
+> **_Key Takeaway_** Classes should be used when an invariance exists. If no invariances exist, use a struct. This concept is so important that there is an [article dedicated just to invariance](https://github.com/mokyen/okyensourcesoftware/blob/main/invariance.md).
 
 <details>
   <summary>C.4: Make a function a member only if it needs direct access to the representation of a class</summary>
   
 ### <a name="Rc-member"></a>C.4: Make a function a member only if it needs direct access to the representation of a class
 
-##### Reason
+#### Reason
 
 Less coupling than with member functions, fewer functions that can cause trouble by modifying object state, reduces the number of functions that needs to be modified after a change in representation.
 
-##### Example
+#### Example
 
 ```cpp
     class Date {
@@ -153,22 +152,22 @@ Less coupling than with member functions, fewer functions that can cause trouble
 
 The "helper functions" have no need for direct access to the representation of a `Date`.
 
-##### Note
+#### Note
 
 This rule becomes even better if C++ gets ["uniform function call"](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0251r0.pdf).
 
-##### Exception
+#### Exception
 
 The language requires `virtual` functions to be members, and not all `virtual` functions directly access data.
 In particular, members of an abstract class rarely do.
 
 Note [multi-methods](https://web.archive.org/web/20200605021759/https://parasol.tamu.edu/~yuriys/papers/OMM10.pdf).
 
-##### Exception
+#### Exception
 
 The language requires operators `=`, `()`, `[]`, and `->` to be members.
 
-##### Exception
+#### Exception
 
 An overload set could have some members that do not directly access `private` data:
 
@@ -183,7 +182,7 @@ An overload set could have some members that do not directly access `private` da
     };
 ```
 
-##### Exception
+#### Exception
 
 Similarly, a set of functions could be designed to be used in a chain:
 
@@ -193,30 +192,31 @@ Similarly, a set of functions could be designed to be used in a chain:
 
 Typically, some but not all of such functions directly access `private` data.
 
-##### Enforcement
+#### Enforcement
 
 * Look for non-`virtual` member functions that do not touch data members directly.
 The snag is that many member functions that do not need to touch data members directly do.
 * Ignore `virtual` functions.
 * Ignore functions that are part of an overload set out of which at least one function accesses `private` members.
 * Ignore functions returning `this`.
+
 </details>
 
 > [!Important]  
-> **_Key Takeaway_** Only make a function a member if it needs access to private data or is part of an interface 
+> **_Key Takeaway_** Only make a function a member if it needs access to private data or is part of an interface.
 
 <details>
   <summary>C.8: Use `class` rather than `struct` if any member is non-public</summary>
   
 ### <a name="Rc-class"></a>C.8: Use `class` rather than `struct` if any member is non-public
 
-##### Reason
+#### Reason
 
 Readability.
 To make it clear that something is being hidden/abstracted.
 This is a useful convention.
 
-##### Example, bad
+#### Example, bad
 
 ```cpp
     struct Date {
@@ -236,52 +236,139 @@ The data is split in different parts of the class declaration.
 Different parts of the data have different access.
 All of this decreases readability and complicates maintenance.
 
-##### Note
+#### Note
 
 Prefer to place the interface first in a class, [see NL.16](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rl-order).
 
-##### Enforcement
+#### Enforcement
 
 Flag classes declared with `struct` if there is a `private` or `protected` member.
 
 </details>
 
 > [!Important]  
-> **_Key Takeaway_** Use a struct when all data is public, and a class when there is any private data.
+> **_Key Takeaway_** Use a struct when all data is public, and use a class when there is any private data.
 
 ## Decision Making Isolation
 
+There are three key goals in DMI:
+
+* Separate decision-making into pure free functions or small classes without external dependencies. The remaining code is IO or wiring.
+* Default to using publicly available data, such as structs or variables, and free functions instead of classes.
+* Choose free functions unless the data has invariance.
+* Unit test all decision-making code.
+
+Let's break down these key ideas.
+
 ### The three types of code
 
-In DMI, code is organized into three types of code: IO, decision making, and wiring.
+In DMI, code is organized into three types of code: decision making, IO, and wiring.
 
-#### IO
+Let's look at a simple class example.
 
-TBD
+```cpp
+    class RequestHandler
+    {
+    private:
+        Outputter* m_outputter;
+    public:
+        RequestHandler (Outputter* outputter) : m_outputter(outputter)
+        {}
+
+        void processRequest(EState state){
+            switch (state){
+                case EState::State1:
+                    m_outputter->send((int)EData::Data1);
+                    break;
+                case EState::State2:
+                    m_outputter->send(2);
+                    break;
+            }
+        }
+    };
+```
+
+This class is fairly easy to read, but of course it's only a few lines long. As it grew, it's easy to imagine that the `switch` statement could grow increasingly complex and harder to follow.
+
+This is also pretty simple to modify or extend at this scale. However, what if there are more considerations in determining what to send than just the `state`? I assume that most programmers have seen the twisted webs than can arise from switch statements.
+
+Testing this class is relatively difficult for such a simple class. I would have to create a spy, fake, or mock version of the `Outputter` object that I can inject into this class. Therefore, `RequestHandler` tests would be broken if the interface of `Outputter` changed.
+
+The crux of the issue here is that all three types of code are combined into the processRequest function. DMI to the rescue!
 
 #### Decision Making
 
-TBD
+Well, we're finally going to talk about the key term in this whole methodology. So what is decision making?
+
+Decision-making code is where the logic occurs within the code. In the `processRequest` function, the logic is just the `switch` that determines what will occur.
+
+#### IO
+
+Here, IO (inputs and outputs) does not refer to hardware or other layers of code. In DMI, IO is any injected dependency that would need to be .
+
+Features:
+
+* Not owned by the parent (composition)
+* Cannot be created without external dependencies
+
+The calls to `m_outputter` IO.
+
 
 #### Wiring
 
-TBD
+Wiring code is all the rest. It's the code that stitches together the decision-making and the IO. This code tends to be relatively, well, *boring*, and it's easy to read.
+
+### Example Rewritten using DMI
+
+So what would the `RequestHandler` look like if we refactored it with DMI?
+
+```cpp
+class RequestHandler {
+private:
+    Outputter* m_outputter;
+public:
+    RequestHandler (Outputter* outputter) : m_outputter(outputter) {}
+    //Wiring
+    void processRequest(EState state) {
+        auto data = decide(state); //Decision-making
+        m_outputter->send(data); // I/O
+    }};
+
+namespace RequestHandlerHelpers {
+int decide(EState state) {
+    int ret;
+    switch (state) {
+        case EState::State1:
+            ret = (int)EData::Data1;
+            break;
+        case EState::State2:
+            ret = 2;
+            break;
+    }
+        return ret;
+}
+}
+
+```
+
+### Unit Testing in DMI
+
+**Talk about what is valuable and 
 
 ### DMI Rules
 
 From these key takeaways, we have established the following guidelines as DMI when creating a software entity:
 
-- Start with the goal of using publicly available data, such as structs or variables, and free functions
-- Consider the data that is core to the functionality of the entity. Identify the invariance that exist.
-- Create a class to encapsulate any invariance.
-- All decision making should be in a 'small class' (i.e. one that encapsulates the invariance(s)) or in free functions.
-- All decision making should be unit tested
-- Unit tests should be preferred at the highest level possible that doesn't require IO. Other objects can be included in these tests so long as they do not have external dependencies that require mocking. However, it is at the developer's discretion to add in additional lower level unit tests as needed for clarity or to evaluate edge cases.
-- Decision making should not have external dependencies. There shouldn't be any calls to outside objects to get or set data. Functions (free or member) should be as pure as possible.
-- Wiring code will typically not be unit test.
-- Integration tests should be written at the highest level reasonable to test the 'happy path(s)'. Any evaluation of error and edge cases should be handled through the unit tests and code reviews.
-- Test doubles should be avoided whenever possible. If they are required, the priority order of desirability is inversely correlated with the level of complexity. From most desirable to least should be: stub, dummy, spy, fake, mock.
-- 
+* All decision making should be in free functions or in a 'small class' (i.e. one that encapsulates the invariance(s)).
+* Default to using publicly available data, such as structs or variables, and free functions instead of classes.
+* Consider the data that is core to the functionality of the entity. Identify any invariance(s) that exist.
+* Create a class to encapsulate any invariance.
+* All decision making should be unit tested
+* Unit tests should be preferred at the highest level possible that doesn't require IO. Other objects can be included in these tests so long as they do not have external dependencies that require mocking. However, it is at the developer's discretion to add in additional lower level unit tests as needed for clarity or to evaluate edge cases.
+* Decision making should not have external dependencies. There shouldn't be any calls to outside objects to get or set data. Functions (free or member) should be as pure as possible.
+* Wiring code will typically not be unit test.
+* Integration tests should be written at the highest level reasonable to test the 'happy path(s)'. Any evaluation of error and edge cases should be handled through the unit tests and code reviews.
+* Test doubles should be avoided whenever possible. If they are required, the priority order of desirability is inversely correlated with the general level of complexity. From most desirable to least should be: stub, dummy, spy, fake, mock.
 
 ## Is this just clean architecture or hexagonal architecture?
 
@@ -292,27 +379,13 @@ For anyone familiar with [Uncle Bob's clean architecture](https://blog.cleancode
 "High-quality software is easy to change, easy to extend, and easy to test." (Iglberger, 2022)
 
 ## References
-- Martin, R. (n.d.). Principles of OOD. butunclebob.com. Retrieved December 28, 2023, from http://butunclebob.com/ArticleS.UncleBob.PrinciplesOfOod
-- Clean Coder Blog. (2012, August 13). Retrieved January 2, 2024, from https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html
-- Cockburn, A. (2005, January 4). Hexagonal architecture. Alistair Cockburn. Retrieved January 2, 2024, from https://alistair.cockburn.us/hexagonal-architecture/
-- Martin, R. C. (2018). Clean Architecture: A Craftsman’s Guide to Software Structure and Design.
-- Iglberger, K. (2023). C++ Software Design: Design Principles and Patterns for High-Quality Software. O’Reilly Media.
-- C++ Core Guidelines. (2023, October 12). Retrieved January 2, 2024, from https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines
-- Iglberger, Klaus. (2022). Breaking Dependencies: The Path to High-Quality Software [PowerPoint slides]. https://meetingcpp.com/mcpp/slides/2022/Breaking%20Dependencies8158.pdf.
 
+* Martin, R. (n.d.). Principles of OOD. butunclebob.com. Retrieved December 28, 2023, from <http://butunclebob.com/ArticleS.UncleBob.PrinciplesOfOod>
+* Clean Coder Blog. (2012, August 13). Retrieved January 2, 2024, from <https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html>
+* Cockburn, A. (2005, January 4). Hexagonal architecture. Alistair Cockburn. Retrieved January 2, 2024, from <https://alistair.cockburn.us/hexagonal-architecture/>
+* Martin, R. C. (2018). Clean Architecture: A Craftsman’s Guide to Software Structure and Design.
+* Iglberger, K. (2023). C++ Software Design: Design Principles and Patterns for High-Quality Software. O’Reilly Media.
+* C++ Core Guidelines. (2023, October 12). Retrieved January 2, 2024, from <https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines>
+* Iglberger, Klaus. (2022). Breaking Dependencies: The Path to High-Quality Software [PowerPoint slides]. <https://meetingcpp.com/mcpp/slides/2022/Breaking%20Dependencies8158.pdf>.
 
-
-OCP Article: https://drive.google.com/file/d/0BwhCYaYDn8EgN2M5MTkwM2EtNWFkZC00ZTI3LWFjZTUtNTFhZGZiYmUzODc1/view?resourcekey=0-FsS837CGML599A_o5D-nAw 
-
-
-
-
-
-
-
-
-
-
-
-
-
+OCP Article: <https://drive.google.com/file/d/0BwhCYaYDn8EgN2M5MTkwM2EtNWFkZC00ZTI3LWFjZTUtNTFhZGZiYmUzODc1/view?resourcekey=0-FsS837CGML599A_o5D-nAw>
