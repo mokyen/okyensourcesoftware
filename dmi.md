@@ -351,6 +351,12 @@ int decide(EState state) {
 
 ```
 
+The `switch` from before has moved to a pure free function. It has no external dependencie and is easy to read. The function has a single responsibility, so it is easy to maintain and extend. as a pure function, it is simple to test. That's our big four!
+
+The `m_outputter` dependency remains called only in the wiring code. It would be simple to code review the wiring and feel comfortable It's doing what you expect.
+
+
+
 ### Unit Testing in DMI
 
 **Talk about what is valuable and 
