@@ -8,17 +8,15 @@ The SOLID principles were first published by Robert C. Martin (aka Uncle Bob). F
 
 The baseline goal of software is code that *works*, but that's what I would call "functional code."
 
-The real measure isn't if software works when a feature is first completed or even sometimes at the first release. 
-Instead,software is judged by how well that code can 
+The real measure isn't if software works when a feature is first completed or even sometimes at the first release. Instead, the true test comes as that software has to change.
 
 Klaus Iglberger gave this definition:
 
 "High-quality software is easy to change, easy to extend, and easy to test." (Iglberger, 2022)
 
-I would also add 'readability' to this list. It is arguable that it is implied in the ability to change and extend that the code must be readable, but I contend that other developers will also need to be able to read your code to understand it even if they are not modifying it in any way, such as when they use your API.
+I would also add 'readability' to this list. It could be argued that readability implied in the ability to change and extend, but I contend that other developers will also need to be able to read your code to understand it even if they are not modifying it in any way, such as when they use your API.
 
 Therefore, I propose that quality software is easy to *read, modify, extend, and test.*
-
 
 ## Software Entities
 
@@ -50,9 +48,13 @@ Klaus Iglberger states SRP a bit differently as...
 
 ### OCP
 
+TBD
+
 ## Core Guidelines
 
-So what do the Cpp Core Guidelines have to say about designing entities?
+If we're going to look for advice on C++, the ultimate source is the [Cpp Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines).
+
+So what do the Guidelines have to say about designing entities?
 
 <details>
   <summary>F.8: Prefer pure functions</summary>
@@ -304,11 +306,13 @@ Let's look at a simple class example.
     };
 ```
 
-This class is fairly easy to read, but of course it's only a few lines long. As it grew, it's easy to imagine that the `switch` statement could grow increasingly complex and harder to follow.
+This class is fairly easy to read, but of course it's only a few lines long. As it grows, it's easy to imagine that the `switch` statement could grow increasingly complex and harder to follow.
 
-This is also pretty simple to modify or extend at this scale. However, what if there are more considerations in determining what to send than just the `state`? I assume that most programmers have seen the twisted webs than can arise from switch statements.
+This is also pretty simple to modify or extend at this scale. However, what if there are more considerations in determining what to send than just the `state`? I assume that most programmers have seen the twisted webs than can arise from switch statements. Being *closed to moficiation* seems a bit of stretch.
 
 Testing this class is relatively difficult for such a simple class. I would have to create a spy, fake, or mock version of the `Outputter` object that I can inject into this class. Therefore, `RequestHandler` tests would be broken if the interface of `Outputter` changed.
+
+In the past, I would have this class fulfills SRP. It has a Single Responsibility - to process a request. However, the coupling between the `Outputter` and the logic means that one *actor* could cause this to change.
 
 The crux of the issue here is that all three types of code are combined into the processRequest function. DMI to the rescue!
 
@@ -316,7 +320,7 @@ The crux of the issue here is that all three types of code are combined into the
 
 Well, we're finally going to talk about the key term in this whole methodology. So what is decision making?
 
-Decision-making code is where the logic occurs within the code. In the `processRequest` function, the logic is just the `switch` that determines what will occur.
+Decision-making code is where the logic occurs within the code. In the `processRequest` function, the logic is just the `switch` that determines what will occur. This is where we determine **what** we will do.
 
 #### IO
 
@@ -328,7 +332,6 @@ Features:
 * Cannot be created without external dependencies
 
 The calls to `m_outputter` IO.
-
 
 #### Wiring
 
@@ -366,15 +369,115 @@ int decide(EState state) {
 }
 ```
 
-The `switch` from before has moved to a pure free function. It has no external dependencie and is easy to read. The function has a single responsibility, so it is easy to maintain and extend. as a pure function, it is simple to test. That's our big four!
+The `switch` from before has moved to a pure free function. It has no external dependencie and is easy to read. The function has a single responsibility, so it is easy to maintain and extend. As a pure function, it is simple to test. That's our big four!
 
-The `m_outputter` dependency remains called only in the wiring code. It would be simple to code review the wiring and feel comfortable It's doing what you expect.
+The `m_outputter` dependency is only used in the wiring code. It would be simple to code review the wiring and feel comfortable it's doing what you expect.
 
+## Unit Testing in DMI
 
+As previously mentioned, the original goal was to determine how to get more value from unit tests. The 'value' of testing is determined by the ratio of benfit versus cost:
 
-### Unit Testing in DMI
+> | Benefit | Cost |
+> | ----------- | ----------- |
+> | <ul><li>Confidence in the functionality of code</li><li>Ability to prevent regressions | Time and effort in creating and maintaining unit tests</li></ul> |
 
-**Talk about what is valuable and 
+{{{CONSIDER IF THIS SHOULD BE THE "DELIVER FUNCTIONAL CODE MORE QUICKLY" DEFINITION INSTEAD}}}
+
+### Testing the types of code
+
+ The decision making is the most important part to test, and using DMI makes this code easy to test. Therefore, the decision making is highly valuable.
+
+Since we've already tested the decisions, we could write tests for the remaining IO and wiring code. Testing this typically requires the use of test doubles, especially [spies, fakes, or mocks](https://martinfowler.com/bliki/TestDouble.html). All of these doubles attempt to simulate the injected object based on some assumptions which make them extremely coupled to that injected object. This leads to brittle tests. Using a mocking framework or creating a fake/stub isn't particularly difficult. However, I find that heavy testing of this IO leads to complicated tests that will break whenever the external dependencies change. The assumptions about these dependencies, especially if those dependencies are components outside of the developer's control like external libraries or embedded hardware, are also fragile. After you've made all of these assumptions, have you really increased your confidence that the code is functional? The benefit achieved is highly outweighed by the effort to create and maintain these tests.
+
+So does DMI advocate that the only automated testing should be for the decision making? What about all the rest of the code? No, we have a solution for that too. We'll get there.
+
+### Unit testing example
+
+So how would we test the original `RequestHandler` implementation? Here, we use gtest.
+
+```cpp
+class RequestHandler
+{
+private:
+    Outputter* m_outputter;
+public:
+    RequestHandler (Outputter* outputter) : m_outputter(outputter) {}
+ 
+    void processRequest(EState state){
+        switch (state){
+            case EState::State1:
+                m_Outputter->send((int)EData::Data1);
+                break;
+            case EState::State2:
+                m_Outputter->send(2)
+                break;
+        }
+    }
+};
+
+//Test double
+class FakeOutputter : public Outputter {
+public:
+    void send(int a){
+        m_lastDataSent = a;
+    }
+private:
+    int m_lastDataSent; 
+    EData m_dataTypeSent;
+};
+
+TEST(RequestHandlerTests, GivenState1_Return1) {
+    //Arrange
+    FakeOutputter outputter;
+    RequestHandler uut(&outputter);
+    //Act
+    uut.processRequest(EState::State1);
+    //Assert
+    EXPECT_EQ(outputter.m_lastDataSent, 1);
+} 
+```
+
+Just as we discussed before, at this level of complexity the the code doesn't look to bad. However, `FakeOutputter` will only continue to get more and more complex. This test will break if the signature of `Outputter` ever changes even if the RequestHandler stays the same. The test evaluates if the code does the right thing and the way it does that thing.
+
+On a side note, I have increasingly come to prefer fakes over mocks. Mocking frameworks are incredibly powerful, but they have their own complexities and caveats that are sometimes ignored. This will probably turn into its own blog someday.
+
+Now let's consider the unit test for the `RequestHandler` using DMI.
+
+```cpp
+class RequestHandler {
+private:
+    Outputter* m_outputter;
+public:
+    RequestHandler (Outputter* outputter) : m_outputter(outputter) {}
+    //Wiring
+    void processRequest(EState state) {
+        auto data = RequestHandlerHelpers::decide(state); //Decision-making
+        m_Outputter->send(data); // I/O
+    }};
+
+namespace RequestHandlerHelpers {
+int decide(EState state) {
+    int ret;
+    switch (state) {
+        case EState::State1:
+            ret = 1;
+            break;
+        case EState::State2:
+            ret = 2;
+            break;
+    }
+        return ret;
+}
+}
+
+TEST(DecideTests, GivenState1_Return1) {
+    //Arrange, Act, and Assert
+    EXPECT_EQ(
+        RequestHandlerHelpers::decide(EState::State1), 1);
+}
+```
+
+The unit test above gives confidence that the software will perform the correct action while remaining simple and readable. The test evaluates one thing and only one thing.
 
 ### DMI Rules
 
@@ -393,10 +496,15 @@ From these key takeaways, we have established the following guidelines as DMI wh
 
 ## Is this just clean architecture or hexagonal architecture?
 
-For anyone familiar with [Uncle Bob's clean architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) or [Alistair Cockburn's hexagonal architecture](https://alistair.cockburn.us/hexagonal-architecture), It could seem that DMI is the same thing. However, both of those are architectural philosophies. DMI is about designing software entities, specifically classes, functions, and structs. The philosophies certainly have significant parallels, and DMI absolutely interplays with these architectural paradigms.
+For anyone familiar with [Uncle Bob's clean architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) or [Alistair Cockburn's hexagonal architecture](https://alistair.cockburn.us/hexagonal-architecture), it could seem that DMI is the same thing. However, both of those are architectural philosophies. DMI is about designing software entities, specifically classes, functions, and structs. The philosophies certainly have significant parallels, and DMI is absolutely compatible with these architectural paradigms. In some ways, DMI is the low-level design version of these philosophies.
 
-## Quality Code
+Clean architecture defines a set of layers within the code where inner layers are unaware of the outer layers so that all source code dependencies point towards inward. The most inner layers are the 'entity layer' and 'use case layer', Martin also refers to as the 'enterprise business rules' and 'application business rules', respectively.
 
+So isn't all of the decision-making in DMI in these inner layers? No, because decisions are made at every level of code.
+
+Consider a hardware driver, which would be in one of the outer layers. There are decisions that are made based on the data sheet for that part, and there is value in testing those decisions.
+
+**TODO: NEED MORE DETAILD EXAMPLE**
 
 ## References
 
