@@ -4,6 +4,22 @@ Writing code is relatively easy. Writing good code is hard.
 
 The SOLID principles were first published by Robert C. Martin (aka Uncle Bob). For me, the 'LID' are relatively easy to understand and implement. I've found that the challenging principles have always been SRP and OCP. A few years ago, I began working with some colleagues on creating more valuable unit tests. That's a story for another day, but our answer came to be that code needs to be designed better to be tested. That's led us to a design philosophy that provides practical guidance on how to design better software entities that fulfills the SOLID and particularly SRP and OCP that also makes code more readable, maintainable, and extensible. We call it Design Making Isolation, or DMI.
 
+## What is Quality Software?
+
+The baseline goal of software is code that *works*, but that's what I would call "functional code."
+
+The real measure isn't if software works when a feature is first completed or even sometimes at the first release. 
+Instead,software is judged by how well that code can 
+
+Klaus Iglberger gave this definition:
+
+"High-quality software is easy to change, easy to extend, and easy to test." (Iglberger, 2022)
+
+I would also add 'readability' to this list. It is arguable that it is implied in the ability to change and extend that the code must be readable, but I contend that other developers will also need to be able to read your code to understand it even if they are not modifying it in any way, such as when they use your API.
+
+Therefore, I propose that quality software is easy to *read, modify, extend, and test.*
+
+
 ## Software Entities
 
 Any field that is as big and fast-developing as software is going to be plagued with overloaded terminology. When I say 'software entity' or 'entity', I am referring to this [definition from CppReference](https://en.cppreference.com/w/cpp/language/basic_concepts):
@@ -382,7 +398,6 @@ For anyone familiar with [Uncle Bob's clean architecture](https://blog.cleancode
 
 ## Quality Code
 
-"High-quality software is easy to change, easy to extend, and easy to test." (Iglberger, 2022)
 
 ## References
 
