@@ -364,7 +364,6 @@ int decide(EState state) {
         return ret;
 }
 }
-
 ```
 
 The `switch` from before has moved to a pure free function. It has no external dependencie and is easy to read. The function has a single responsibility, so it is easy to maintain and extend. as a pure function, it is simple to test. That's our big four!
