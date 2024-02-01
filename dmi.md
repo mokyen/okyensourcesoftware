@@ -145,7 +145,7 @@ Look for `struct`s with all data private and `class`es with public members.
 </details>
 
 > [!Important]  
-> **_Key Takeaway_** Classes should be used when an invariance exists. If no invariances exist, use a struct. This concept is so important that there is an [article dedicated just to invariance](https://github.com/mokyen/okyensourcesoftware/blob/main/invariance.md).
+> **_Key Takeaway_** Classes should be used when an invariance exists. If no invariances exist, use a struct. This concept is so important that there is an [article dedicated just to invariance](invariance.md).
 
 <details>
   <summary>C.4: Make a function a member only if it needs direct access to the representation of a class</summary>

@@ -1,10 +1,10 @@
 # What is Invariance?
 
-The term 'invariant' is one of the linchpins of Decision Making Isolation. It is used in the CPP core guidelines as the reason to use a class versus struct. But what does it really mean?
+The term 'invariant' is one of the linchpins of Decision Making Isolation. It is used in the [Cpp Core Guidelines](https://isocpp.github.io/CppCoreGuidelines) as the reason to use a class versus struct. But what does it really mean?
 
 ## Defining Invariance
 
-The Guidelines define invitations as:
+In [C.2](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c2-use-class-if-the-class-has-an-invariant-use-struct-if-the-data-members-can-vary-independently), the Guidelines define invariance as:
 
 > An invariant is a logical condition for the members of an object that a constructor must establish for the public member functions to assume. After the invariant is established (typically by a constructor) every member function can be called for the object. An invariant can be stated informally (e.g., in a comment) or more formally using Expects.
 > 
@@ -12,7 +12,7 @@ The Guidelines define invitations as:
 
 So what does this mean in practical terms? Here's a simple example.
 
-Let's consider a simple electrical circuit which is characterized by Ohm's Law
+Let's consider a simple electrical circuit that is characterized by Ohm's Law:
 
 > volts = current * resistance
 
@@ -34,89 +34,92 @@ bool m_isLightOn;
 uint8_t m_brightness;
 };
 ```
-The variable M _ is light on can they changed completely independently from m_brightness, but the reverse is not true. Therefore, these two pieces of data still have an invariance, or, said another way, the relationship between these two is an invariant.
 
-## 'Invariant' doesn't mean Immutability
+The variable `m_isLightOn` on can change completely independently from `m_brightness`, but the reverse is not true. Therefore, these two pieces of data still have an invariance, or, said another way, the relationship between these two is an invariant.
+
+## 'Invariant' Doesn't Mean Immutability
 
 Keep in mind that invariance means a relationship, not that the data cannot change. The term in software for something that cannot change is immutability.
 
-## So Why do Invariants Matter?
+## So Why Do Invariants Matter?
 
-DMI uses invariance as one of the key heuristics when determining if a class, a struct, or a free function should be implemented based on C.2 from the Guidelines.
+[DMI](dmi.md) uses invariance as one of the key heuristics when determining if a class, a struct, or a free function should be implemented based on [C.2](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c2-use-class-if-the-class-has-an-invariant-use-struct-if-the-data-members-can-vary-independently) from the Guidelines.
 
 ## Straight from the Source
 
-So with these simple examples in mind, here is what the Guidelines say about when to use a class:
+So with these simple examples in mind, here is what the Guidelines say about when to use a class in [C.2](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c2-use-class-if-the-class-has-an-invariant-use-struct-if-the-data-members-can-vary-independently):
 
-> C.2: Use class if the class has an invariant; use struct if the data members can vary independently
+> ### <a name="Rc-struct"></a>C.2: Use `class` if the class has an invariant; use > `struct` if the data members can vary independently
 > 
+> #### Reason
 > 
-> Reason
+> Readability.
+> Ease of comprehension.
+> The use of `class` alerts the programmer to the need for an invariant.
+> This is a useful convention.
 > 
-> Readability. Ease of comprehension. The use of class alerts the programmer to the need for an invariant. This is a useful convention.
+> #### Note
 > 
-> 
-> Note
-> 
-> An invariant is a logical condition for the members of an object that a constructor must establish for the public member functions to assume. After the invariant is established (typically by a constructor) every member function can be called for the object. An invariant can be stated informally (e.g., in a comment) or more formally using Expects.
+> An invariant is a logical condition for the members of an object that a constructor > must establish for the public member functions to assume.
+> After the invariant is established (typically by a constructor) every member function > can be called for the object.
+> An invariant can be stated informally (e.g., in a comment) or more formally using > `Expects`.
 > 
 > If all data members can vary independently of each other, no invariant is possible.
 > 
-> 
-> Example
+> #### Example
 > 
 > ```cpp
-> struct Pair {  // the members can vary independently
->     string name;
->     int volume;
-> };
-> 
+>     struct Pair {  // the members can vary independently
+>         string name;
+>         int volume;
+>     };
 > ```
+> 
 > but:
 > 
 > ```cpp
-> class Date {
-> public:
->     // validate that {yy, mm, dd} is a valid date and initialize
->     Date(int yy, Month mm, char dd);
->     // ...
-> private:
->     int y;
->     Month m;
->     char d;    // day
-> };
-> 
+>     class Date {
+>     public:
+>         // validate that {yy, mm, dd} is a valid date and initialize
+>         Date(int yy, Month mm, char dd);
+>         // ...
+>     private:
+>         int y;
+>         Month m;
+>         char d;    // day
+>     };
 > ```
 > 
-> Note
+> #### Note
 > 
-> If a class has any private data, a user cannot completely initialize an object without the use of a constructor. Hence, the class definer will provide a constructor and must specify its meaning. This effectively means the definer need to define an invariant.
+> If a class has any `private` data, a user cannot completely initialize an object > without the use of a constructor.
+> Hence, the class definer will provide a constructor and must specify its meaning.
+> This effectively means the definer need to define an invariant.
 > 
-> See also:
+> **See also**:
 > 
-> Define a class with private data as class
-> Prefer to place the interface first in a class
-> Minimize exposure of members
-> Avoid protecteddata
+> * [define a class with private data as `class`](https://isocpp.github.io/> CppCoreGuidelines/CppCoreGuidelines#Rc-class)
+> * [Prefer to place the interface first in a class](https://isocpp.github.io/> CppCoreGuidelines/CppCoreGuidelines#Rl-order)
+> * [minimize exposure of members](https://isocpp.github.io/CppCoreGuidelines/> CppCoreGuidelines#Rc-private)
+> * [Avoid `protected` data](https://isocpp.github.io/CppCoreGuidelines/> CppCoreGuidelines#Rh-protected)
 > 
-> Enforcement
+> #### Enforcement
 > 
-> Look for structs with all data private and classes with public members
-
+> Look for `struct`s with all data private and `class`es with public members.
 
 ## ...but all my data's relationships aren't that simple
 
-Of course these simplified examples don't fully capture how data is arranged.
+Of course, these simplified examples don't fully capture how data is arranged.
 
 ==Talk about an example of code where there is an invariance and a bunch of other data and how the data not part of the invariance could be part of a struct in the invariance could be a class in that struct.==
 
-An example could be an extension of the light class. There could be a name field that has nothing to do with any other data. That could be put in a strut that contains a class with the settings data in, and that class would contain the invariance.
+An example could be an extension of the light class. There could be a name field that has nothing to do with any other data. That could be put in a struct that contains a class with the settings data in, and that class would contain the invariance.
 
-An issue is that this starts to break down a bit when you consider that you need a setter that is more complex for the name. What if you need to make sure the name follows certain rules? I'm not sure how that ties in here. There's no invariance that is created, but you need a custom setter.
+An issue is that this starts to break down a bit when you consider that you need a setter that is more complex for the name. What if you need to make sure the name follows certain rules? I'm not sure how that ties in here. No invariance is created, but you need a custom setter.
 
 ## special types of invariance
 
-As we dig further and further into this concept, we realized that there are lots of these relationships that don't look quite like these simplified examples. However, the same philosophy can be applied. Among the special cases are
+As we dug further and further into this concept, we realized that there are lots of these relationships that don't look quite like these simplified examples. However, the same philosophy can be applied. Among the special cases are
 
 ### RAII
 
@@ -128,4 +131,4 @@ As we dig further and further into this concept, we realized that there are lots
 
 ## But what about when my invariants or data change?
 
-Talk about how putting data into classes doesn't necessarily help when you need to introduce an invariant later. You are guessing where that might occur if you are choosing to stick all your data in the classes just because they might change. By keeping data in small strucks that are related, it's fairly simple to make that change later. Changing from setting a variable directly to calling a setter function is it pretty minor refactor. 
+Talk about how putting data into classes doesn't necessarily help when you need to introduce an invariant later. You are guessing where that might occur if you are choosing to stick all your data in the classes just because they might change. By keeping data in small structs that are related, it's fairly simple to make that change later. Changing from setting a variable directly to calling a setter function is it pretty minor refactor.
