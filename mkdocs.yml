@@ -53,5 +53,11 @@ markdown_extensions:
   - pymdownx.emoji:
       emoji_generator: !!python/name:materialx.emoji.to_svg
 
+nav:
+  - Home: 'index.md'
+  - About:
+    - 'about.md'
+    - 'bio.md'
+
 copyright: |
   &copy; 2024 <a href="https://github.com/mokyen"  target="_blank" rel="noopener">Michael Okyen</a>

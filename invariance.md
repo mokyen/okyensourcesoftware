@@ -78,7 +78,7 @@ The variable `m_isLightOn` on can change completely independently from `m_bright
 
 ## Relationship Between a Member and Resource
 
-When a data member needs to have a relationship with a "resource", the [recommended programming idiom is RAII] (https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#p8-dont-leak-any-resources).
+When a data member needs to have a relationship with a "resource", the [recommended programming idiom is RAII](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#p8-dont-leak-any-resources).
 
 cppreference.com [defines Resource Allocation Is Initialization](https://en.cppreference.com/w/cpp/language/raii) as:
 
@@ -124,33 +124,33 @@ Keep in mind that invariance means a relationship, not that the data cannot chan
 So with these simple examples in mind, here is what the Guidelines say about when to use a class in [C.2](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c2-use-class-if-the-class-has-an-invariant-use-struct-if-the-data-members-can-vary-independently):
 
 > ### <a name="Rc-struct"></a>C.2: Use `class` if the class has an invariant; use > `struct` if the data members can vary independently
-> 
+>
 > #### Reason
-> 
+>
 > Readability.
 > Ease of comprehension.
 > The use of `class` alerts the programmer to the need for an invariant.
 > This is a useful convention.
-> 
+>
 > #### Note
-> 
+>
 > An invariant is a logical condition for the members of an object that a constructor > must establish for the public member functions to assume.
 > After the invariant is established (typically by a constructor) every member function > can be called for the object.
 > An invariant can be stated informally (e.g., in a comment) or more formally using > `Expects`.
-> 
+>
 > If all data members can vary independently of each other, no invariant is possible.
-> 
+>
 > #### Example
-> 
+>
 > ```cpp
 >     struct Pair {  // the members can vary independently
 >         string name;
 >         int volume;
 >     };
 > ```
-> 
+>
 > but:
-> 
+>
 > ```cpp
 >     class Date {
 >     public:
@@ -163,22 +163,22 @@ So with these simple examples in mind, here is what the Guidelines say about whe
 >         char d;    // day
 >     };
 > ```
-> 
+>
 > #### Note
-> 
+>
 > If a class has any `private` data, a user cannot completely initialize an object > without the use of a constructor.
 > Hence, the class definer will provide a constructor and must specify its meaning.
 > This effectively means the definer need to define an invariant.
-> 
+>
 > **See also**:
-> 
+>
 > * [define a class with private data as `class`](https://isocpp.github.io/> CppCoreGuidelines/CppCoreGuidelines#Rc-class)
 > * [Prefer to place the interface first in a class](https://isocpp.github.io/> CppCoreGuidelines/CppCoreGuidelines#Rl-order)
 > * [minimize exposure of members](https://isocpp.github.io/CppCoreGuidelines/> CppCoreGuidelines#Rc-private)
 > * [Avoid `protected` data](https://isocpp.github.io/CppCoreGuidelines/> CppCoreGuidelines#Rh-protected)
-> 
+>
 > #### Enforcement
-> 
+>
 > Look for `struct`s with all data private and `class`es with public members.
 
 <!-- ## ...but all my data's relationships aren't that simple
@@ -206,6 +206,5 @@ As we dug further and further into this concept, we realized that there are lots
 ## But what about when my invariants or data change?
 
 **TODO** Talk about how putting data into classes doesn't necessarily help when you need to introduce an invariant later. You are guessing where that might occur if you are choosing to stick all your data in the classes just because they might change. By keeping data in small structs that are related, it's fairly simple to make that change later. Changing from setting a variable directly to calling a setter function is it pretty minor refactor.
-
 
 ## Conclusion
