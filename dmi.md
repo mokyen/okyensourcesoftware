@@ -269,11 +269,16 @@ Flag classes declared with `struct` if there is a `private` or `protected` membe
 
 ## Decision Making Isolation
 
-There are three key goals in DMI:
+The vision of DMI is this:
+
+> [!Important]
+> The most important part of our code are the places where we decide what should happen. If these decisions are isolated, that critical code is easy to read, modify, extend, and test. If those key decisions are implemented correctly, then we can feel confident that our code trying to do what we expect it to do.
+
+To achieve this, we have four key goals in DMI:
 
 * Separate decision-making into pure free functions or small classes without external dependencies. The remaining code is IO or wiring.
 * Default to using publicly available data, such as structs or variables, and free functions instead of classes.
-* Choose free functions unless the data has invariance.
+* Choose free functions unless the data has invariance or is part of an architectural boundary.
 * Unit test all decision-making code.
 
 Let's break down these key ideas.
