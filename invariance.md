@@ -17,7 +17,7 @@ I've read this explanation over and over, but it still never quite made sense in
 >
 > * A relationship between at least two data members such that all members cannot vary independently.
 > * A relationship between a data member and a resource (aka RAII).
-> * A condition that must always be true for a data member.
+> * A property of a data member that must always be true.
 
 Let's break down each of these.
 
@@ -88,11 +88,11 @@ RAII establishes a relationship between the data member and the resource. It wou
 
 On a side note, I really prefer the term CADRe, or Constructor Acquires-Destructor Releases, as a better name for remembering RAII. However, it's hard to change a term that's been around longer than the Super Nintendo.
 
-## Conditions That Must Be True for a Data Member
+## Property of a Data Member that Must Be True
 
-The final type of invariance is similar to the first but isn't a relationship between data members. For instance, some objects have nontrivial getters or setters for an object that.
+The final type of invariance is similar to the first but isn't a relationship between data members. Instead, there's some thing that needs to be enforced a our a member. Maybe our integer needs to always be even. Maybe a string can only be a certain length . One of the most common places this is seen is in nontrivial getters or setters for an object that do some enforcement.
 
-Consider this class:
+Consider this example:
 
 ```cpp
 class EvenNumber {
