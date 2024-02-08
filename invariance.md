@@ -10,7 +10,7 @@ In [C.2](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c2-use-cla
 >
 > If all data members can vary independently of each other, no invariant is possible.
 
-I've read this explanation over and over, but it still never quite made sense in those terms. Let's propose an alternative defintion of invariance:
+I've read this explanation over and over, but it still never quite made sense in those terms. Let's propose an alternative definition of invariance:
 
 > [!Important]  
 > An invariant is a logical condition for the members of an object that can be expected to be true from the time the constructor exits to the time the destructor is called. These logical conditions fall into three categories.
@@ -21,7 +21,7 @@ I've read this explanation over and over, but it still never quite made sense in
 
 Let's break down each of these.
 
-## Relationships Betwen Members
+## Relationships Between Members
 
 Here's a simple example.
 
@@ -57,7 +57,7 @@ public:
 };
 ```
 
-In our code, all of the parameters are not necessarily linked in this way, and it's not necessarily the constructor that needs to inforce these relationships. For instance, consider this class:
+In our code, all of the parameters are not necessarily linked in this way, and it's not necessarily the constructor that needs to enforce these relationships. For instance, consider this class:
 
 ```cpp
 class Light {
@@ -86,7 +86,7 @@ cppreference.com [defines Resource Allocation Is Initialization](https://en.cppr
 
 RAII establishes a relationship between the data member and the resource. It would be dangerous to place a file handle as a public member, as a change to it could create a memory leak. RAII creates an invariance between the member and the resource.
 
-On a side note, I really prefer to the term CADRe, or Constructor Acquires-Destructor Releases, as a better name for remembering RAII. However, it's hard to change a term that's been around longer than the Super Nintendo.
+On a side note, I really prefer the term CADRe, or Constructor Acquires-Destructor Releases, as a better name for remembering RAII. However, it's hard to change a term that's been around longer than the Super Nintendo.
 
 ## Conditions That Must Be True for a Data Member
 
