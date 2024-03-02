@@ -57,7 +57,7 @@ public:
 };
 ```
 
-In our code, all of the parameters are not necessarily linked in this way, and it's not necessarily the constructor that needs to enforce these relationships. For instance, consider this class:
+In our code, all the parameters are not necessarily linked in this way, and it's not necessarily the constructor that needs to enforce these relationships. For instance, consider this class:
 
 ```cpp
 class Light {
@@ -78,19 +78,19 @@ The variable `m_isLightOn` on can change completely independently from `m_bright
 
 ## Relationship Between a Member and Resource
 
-When a data member needs to have a relationship with a "resource", the [recommended programming idiom is RAII](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#p8-dont-leak-any-resources).
+When a data member needs to have a relationship with a "resource," the [recommended programming idiom is RAII](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#p8-dont-leak-any-resources).
 
 cppreference.com [defines Resource Allocation Is Initialization](https://en.cppreference.com/w/cpp/language/raii) as:
 
-> Resource Acquisition Is Initialization or RAII, is a C++ programming technique which binds the life cycle of a resource that must be acquired before use (allocated heap memory, thread of execution, open socket, open file, locked mutex, disk space, database connection—anything that exists in limited supply) to the lifetime of an object.
+> Resource Acquisition Is Initialization, or RAII, is a C++ programming technique that binds the life cycle of a resource that must be acquired before use (allocated heap memory, thread of execution, open socket, open file, locked mutex, disk space, database connection—anything that exists in limited supply) to the lifetime of an object.
 
-RAII establishes a relationship between the data member and the resource. It would be dangerous to place a file handle as a public member, as a change to it could create a memory leak. RAII creates an invariance between the member and the resource.
+RAII establishes a relationship between the data member and the resource. Placing a file handle as a public member would be dangerous, as changing it could create a memory leak. RAII creates an invariance between the member and the resource.
 
 On a side note, I really prefer the term CADRe, or Constructor Acquires-Destructor Releases, as a better name for remembering RAII. However, it's hard to change a term that's been around longer than the Super Nintendo.
 
 ## Property of a Data Member that Must Be True
 
-The final type of invariance is similar to the first but isn't a relationship between data members. Instead, there's some thing that needs to be enforced a our a member. Maybe our integer needs to always be even. Maybe a string can only be a certain length . One of the most common places this is seen is in nontrivial getters or setters for an object that do some enforcement.
+The final type of invariance is similar to the first but isn't a relationship between data members. Instead, there's something that needs to be enforced about a member. Maybe our integer needs to always be even. Perhaps a string can only be a certain length. One of the most common places this is seen is in nontrivial getters or setters for an object that performs some enforcement.
 
 Consider this example:
 
@@ -119,9 +119,9 @@ Keep in mind that invariance means a relationship, not that the data cannot chan
 
 [DMI](dmi.md) uses invariance as one of the key heuristics when determining if a class, a struct, or a free function should be implemented based on [C.2](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c2-use-class-if-the-class-has-an-invariant-use-struct-if-the-data-members-can-vary-independently) from the Guidelines.
 
-## Full Cpp Core Guideline on Invariance
+## Complete Cpp Core Guideline on Invariance
 
-So with these simple examples in mind, here is what the Guidelines say about when to use a class in [C.2](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c2-use-class-if-the-class-has-an-invariant-use-struct-if-the-data-members-can-vary-independently):
+With these simple examples in mind, here is what the Guidelines say about when to use a class in [C.2](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c2-use-class-if-the-class-has-an-invariant-use-struct-if-the-data-members-can-vary-independently):
 
 > ### <a name="Rc-struct"></a>C.2: Use `class` if the class has an invariant; use > `struct` if the data members can vary independently
 >
@@ -134,9 +134,9 @@ So with these simple examples in mind, here is what the Guidelines say about whe
 >
 > #### Note
 >
-> An invariant is a logical condition for the members of an object that a constructor > must establish for the public member functions to assume.
-> After the invariant is established (typically by a constructor) every member function > can be called for the object.
-> An invariant can be stated informally (e.g., in a comment) or more formally using > `Expects`.
+> An invariant is a logical condition for the members of an object that a constructor must establish for the public member functions to assume.
+> After the invariant is established (typically by a constructor) every member function can be called for the object.
+> An invariant can be stated informally (e.g., in a comment) or more formally using `Expects`.
 >
 > If all data members can vary independently of each other, no invariant is possible.
 >
@@ -166,16 +166,16 @@ So with these simple examples in mind, here is what the Guidelines say about whe
 >
 > #### Note
 >
-> If a class has any `private` data, a user cannot completely initialize an object > without the use of a constructor.
+> If a class has any `private` data, a user cannot completely initialize an object without the use of a constructor.
 > Hence, the class definer will provide a constructor and must specify its meaning.
-> This effectively means the definer need to define an invariant.
+> This effectively means the definer needs to define an invariant.
 >
 > **See also**:
 >
-> * [define a class with private data as `class`](https://isocpp.github.io/> CppCoreGuidelines/CppCoreGuidelines#Rc-class)
-> * [Prefer to place the interface first in a class](https://isocpp.github.io/> CppCoreGuidelines/CppCoreGuidelines#Rl-order)
-> * [minimize exposure of members](https://isocpp.github.io/CppCoreGuidelines/> CppCoreGuidelines#Rc-private)
-> * [Avoid `protected` data](https://isocpp.github.io/CppCoreGuidelines/> CppCoreGuidelines#Rh-protected)
+> * [define a class with private data as `class`](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-class)
+> * [Prefer to place the interface first in a class](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rl-order)
+> * [minimize exposure of members](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-private)
+> * [Avoid `protected` data](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rh-protected)
 >
 > #### Enforcement
 >
@@ -205,6 +205,6 @@ As we dug further and further into this concept, we realized that there are lots
 
 ## But what about when my invariants or data change?
 
-**TODO** Talk about how putting data into classes doesn't necessarily help when you need to introduce an invariant later. You are guessing where that might occur if you are choosing to stick all your data in the classes just because they might change. By keeping data in small structs that are related, it's fairly simple to make that change later. Changing from setting a variable directly to calling a setter function is it pretty minor refactor.
+**TODO** Talk about how putting data into classes doesn't necessarily help when you need to introduce an invariant later. You are guessing where that might occur if you choose to stick all your data in the classes just because they might change. By keeping data in small structs that are related, it's fairly simple to make that change later. Changing from setting a variable directly to calling a setter function is it pretty minor refactor.
 
 ## Conclusion
