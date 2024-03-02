@@ -35,26 +35,29 @@ This means that if you vary any one of the parameters, at least one other must a
 //TODO the overloaded constructors aren't allowed with the same types
 class SimpleCiruit {
 public:
-    SimpleCiruit(float volts, float current) : m_volts(volts), m_current(current) {
-        m_resistance = volts / current;
-    }
-    SimpleCiruit(float current, float resistance) : m_current(current), m_resistance(resistance) {
-        m_volts = current * resistance;
-    }
-    SimpleCiruit(float volts, float resistance) : m_volts(volts), m_resistance(resistance) {
-        m_current = volts / resistance;
-    }
-    void setResistanceFixedVoltage(float resistance) {
-        m_resistance = resistance;
-        m_current = m_volts / m_resistance;
-    }
-    void setVoltsFixedCurrent(float volts) {
-        m_volts = volts;
-        m_resistance = m_volts / m_current;
-    }
-    // ...
- private:
-    float m_volts, m_current, m_resistance;
+  SimpleCiruit(float volts, float current)
+      : m_volts(volts), m_current(current) {
+    m_resistance = volts / current;
+  }
+  SimpleCiruit(float current, float resistance)
+      : m_current(current), m_resistance(resistance) {
+    m_volts = current * resistance;
+  }
+  SimpleCiruit(float volts, float resistance)
+      : m_volts(volts), m_resistance(resistance) {
+    m_current = volts / resistance;
+  }
+  void setResistanceFixedVoltage(float resistance) {
+    m_resistance = resistance;
+    m_current = m_volts / m_resistance;
+  }
+  void setVoltsFixedCurrent(float volts) {
+    m_volts = volts;
+    m_resistance = m_volts / m_current;
+  }
+  // ...
+private:
+  float m_volts, m_current, m_resistance;
 };
 ```
 
@@ -63,15 +66,16 @@ In our code, all the parameters are not necessarily linked in this way, and it's
 ```cpp
 class Light {
 public:
-    void setBrightness(uint8_t brightness) {
-        if (m_isLightOn) { m_brightness = brightness;}
+  void setBrightness(uint8_t brightness) {
+    if (m_isLightOn) {
+      m_brightness = brightness;
     }
-    void flipLightStatus( ) {
-        m_isLightOn = !m_isLightOn;
-    }
+  }
+  void flipLightStatus() { m_isLightOn = !m_isLightOn; }
+
 private:
-    bool m_isLightOn;
-    uint8_t m_brightness;
+  bool m_isLightOn;
+  uint8_t m_brightness;
 };
 ```
 
@@ -98,13 +102,17 @@ Consider this example:
 ```cpp
 class EvenNumber {
 public:
-    EvenNumber(int i) { setNumber(i); }
-    void setNumber(int i) {
-        if ( (i % 2) != 0) { throw std::runtime_error("Invalid input"); }
-        else { m_i = i; }
+  EvenNumber(int i) { setNumber(i); }
+  void setNumber(int i) {
+    if ((i % 2) != 0) { 
+      throw std::runtime_error("Invalid input");
+    } else {
+      m_i = i;
     }
+  }
+
 private:
-    int m_i;
+  int m_i;
 };
 ```
 
