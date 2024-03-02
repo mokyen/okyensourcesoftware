@@ -32,15 +32,16 @@ Consider a simple electrical circuit that is characterized by Ohm's Law:
 This means that if you vary any one of the parameters, at least one other must also change. If the voltage increases, either the current or resistance must also increase. If the current decreases, either the resistance will increase or the voltage will decrease. They cannot be changed independently. If we were to code up an object that held these parameters, the parameters couldn't be public members. We'd need to enforce the invariance dictated by Ohm's Law.
 
 ```cpp
+//TODO the overloaded constructors aren't allowed with the same types
 class SimpleCiruit {
 public:
-    SimpleCircuit(float volts, float current) : m_volts(volts),m_current(current) {
+    SimpleCiruit(float volts, float current) : m_volts(volts),m_current(current) {
         m_resistance = volts / current;
     }
-    SimpleCircuit(float current, float resistance) : m_current(current), m_resistance(resistance) {
+    SimpleCiruit(float current, float resistance) : m_current(current), m_resistance(resistance) {
         m_volts = current * resistance;
     }
-    SimpleCircuit(float volts, float resistance) : m_volts(volts),m_resistance(resistance) {
+    SimpleCiruit(float volts, float resistance) : m_volts(volts),m_resistance(resistance) {
         m_current = volts / resistance;
     }
     void setResistanceFixedVoltage(float resistance) {
@@ -53,7 +54,7 @@ public:
     }
     // ...
  private:
-    float float m_volts, m_current, m_resistance;
+    float m_volts, m_current, m_resistance;
 };
 ```
 
@@ -63,10 +64,10 @@ In our code, all the parameters are not necessarily linked in this way, and it's
 class Light {
 public:
 void setBrightness(uint8_t brightness) {
-    if (m_isLightOn) { m_brightness = brightness};
+    if (m_isLightOn) { m_brightness = brightness;}
 }
 void flipLightStatus( ) {
-    m_isLightOn =!m_isLightOn;
+    m_isLightOn = !m_isLightOn;
 }
 private:
 bool m_isLightOn;
@@ -97,7 +98,7 @@ Consider this example:
 ```cpp
 class EvenNumber {
 public:
-    EvenNumber(int i) { setNumber(i) };
+    EvenNumber(int i) { setNumber(i); }
     void setNumber(int i) {
         if ( (i % 2) != 0) { throw std::runtime_error("Invalid input"); }
         else { m_i = i; }
