@@ -29,35 +29,40 @@ Consider a simple electrical circuit that is characterized by Ohm's Law:
 
 > volts = current * resistance
 
-This means that if you vary any one of the parameters, at least one other must also change. If the voltage increases, either the current or resistance must also increase. If the current decreases, either the resistance will increase or the voltage will decrease. They cannot be changed independently. If we were to code up an object that held these parameters, the parameters couldn't be public members. We'd need to enforce the invariance dictated by Ohm's Law.
+Ohm's law dictates that if you vary any one of the parameters, at least one other must also change. If the voltage increases, either the current or resistance must also increase. If the current decreases, either the resistance will increase or the voltage will decrease. They cannot be changed independently. If we were to code up an object that held these parameters, the parameters couldn't be public members. We'd need to enforce the invariance dictated by Ohm's Law.
 
 ```cpp
-//TODO the overloaded constructors aren't allowed with the same types
 class SimpleCiruit {
 public:
-  SimpleCiruit(float volts, float current)
-      : m_volts(volts), m_current(current) {
+  SimpleCiruit(Voltage volts, Current amperage)
+      : m_volts(volts), m_amperage(current) {
     m_resistance = volts / current;
   }
-  SimpleCiruit(float current, float resistance)
-      : m_current(current), m_resistance(resistance) {
+  SimpleCiruit(Current amperage, Resistance resistance)
+      : m_amperage(current), m_resistance(resistance) {
     m_volts = current * resistance;
   }
-  SimpleCiruit(float volts, float resistance)
+  SimpleCiruit(Voltage volts, Resistance resistance)
       : m_volts(volts), m_resistance(resistance) {
-    m_current = volts / resistance;
+    m_amperage = volts / resistance;
   }
-  void setResistanceFixedVoltage(float resistance) {
+  void setResistanceFixedVoltage(Resistance resistance) {
     m_resistance = resistance;
-    m_current = m_volts / m_resistance;
+    m_amperage = m_volts / m_resistance;
   }
-  void setVoltsFixedCurrent(float volts) {
+  void setResistanceFixedCurrent(Resistance resistance) {
+    m_resistance = resistance;
+    m_volts = m_amperage * m_resistance;
+  }
+  void setVoltsFixedCurrent(Voltage volts) {
     m_volts = volts;
-    m_resistance = m_volts / m_current;
+    m_resistance = m_volts / m_amperage;
   }
   // ...
 private:
-  float m_volts, m_current, m_resistance;
+  Voltage m_volts;
+  Current m_amperage;
+  Resistance m_resistance;
 };
 ```
 
@@ -83,7 +88,7 @@ The variable `m_isLightOn` on can change completely independently from `m_bright
 
 ## Relationship Between a Member and Resource
 
-When a data member needs to have a relationship with a "resource," the [recommended programming idiom is RAII](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#p8-dont-leak-any-resources).
+When a data member needs to have a relationship with a "resource," the [Cpp Core Guidelines' recommended programming idiom is RAII](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#p8-dont-leak-any-resources).
 
 cppreference.com [defines Resource Allocation Is Initialization](https://en.cppreference.com/w/cpp/language/raii) as:
 
@@ -91,7 +96,7 @@ cppreference.com [defines Resource Allocation Is Initialization](https://en.cppr
 
 RAII establishes a relationship between the data member and the resource. Placing a file handle as a public member would be dangerous, as changing it could create a memory leak. RAII creates an invariance between the member and the resource.
 
-On a side note, I really prefer the term CADRe, or Constructor Acquires-Destructor Releases, as a better name for remembering RAII. However, it's hard to change a term that's been around longer than the Super Nintendo.
+On a side note, I really prefer the term CADRe, or Constructor Acquires-Destructor Releases, as a better name for remembering RAII. It it just easier to remember the meaning. However, it's hard to change a term that's been around longer than the Super Nintendo.
 
 ## Property of a Data Member that Must Be True
 
@@ -118,7 +123,7 @@ private:
 
 Here, the invariance is a condition between a member and the constant *2*.
 
-**TODO** Write how this could open up a can of works by being too broad.
+I admit that this third category could be considered broard and open-ended. Developers could choose to interpret this to justify just about any data needing to be in a class. Most of the time, the manipulation of a data member is going to be compared to some constant data or literal. Developers should really scrutinize if piece of data really needs that rule enforced before choosing to use a class.
 
 ## 'Invariant' Doesn't Mean Immutability
 
@@ -190,30 +195,10 @@ With these simple examples in mind, here is what the Guidelines say about when t
 >
 > Look for `struct`s with all data private and `class`es with public members.
 
-<!-- ## ...but all my data's relationships aren't that simple
-
-Of course, these simplified examples don't fully capture how data is arranged.
-
-==Talk about an example of code where there is an invariance and a bunch of other data and how the data not part of the invariance could be part of a struct in the invariance could be a class in that struct.==
-
-An example could be an extension of the light class. There could be a name field that has nothing to do with any other data. That could be put in a struct that contains a class with the settings data in, and that class would contain the invariance.
-
-An issue is that this starts to break down a bit when you consider that you need a setter that is more complex for the name. What if you need to make sure the name follows certain rules? I'm not sure how that ties in here. No invariance is created, but you need a custom setter.
-
-## special types of invariance
-
-As we dug further and further into this concept, we realized that there are lots of these relationships that don't look quite like these simplified examples. However, the same philosophy can be applied. Among the special cases are
-
-### RAII
-
-### CRTP
-
-### State Design Pattern
-
-### Nontrivial Getters and Setters -->
-
 ## But what about when my invariants or data change?
 
-**TODO** Talk about how putting data into classes doesn't necessarily help when you need to introduce an invariant later. You are guessing where that might occur if you choose to stick all your data in the classes just because they might change. By keeping data in small structs that are related, it's fairly simple to make that change later. Changing from setting a variable directly to calling a setter function is it pretty minor refactor.
+One of the concerns that can arise from choosing to put data into a struct instead of a class with getters and setters is that those methods provide an interface that insulates callers if the underlying data needs to change. I agree that this not only can but absolutely *will* happen at some point. However, I think a couple of things can serve as protections. First, [DMI](dmi.md) gives guidance that keeps the scope of data small, meaning that the scope of changes will also be small. Second, changing from setting a variable directly to calling a getter or setter is a pretty minor refactor. Third, the placement of data is often just a best guess at first anyway, so the location, type, etc. of data is likely to change over time anyway. The setter/getter interface is also likely change from the first implementation. Modern IDEs continue to make this easier and easier, and the introduction of AI will only continue this trend.
 
 ## Conclusion
+
+Invariance is an important concept that can serve as a real guidance in the design and implementation of our code. It's integral to [DMI](dmi.md), so check out that blog if you're interested in learning more!
