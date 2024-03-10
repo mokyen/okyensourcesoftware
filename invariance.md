@@ -96,7 +96,7 @@ cppreference.com [defines Resource Allocation Is Initialization](https://en.cppr
 
 RAII establishes a relationship between the data member and the resource. Placing a file handle as a public member would be dangerous, as changing it could create a memory leak. RAII creates an invariance between the member and the resource.
 
-On a side note, I really prefer the term CADRe, or Constructor Acquires-Destructor Releases, as a better name for remembering RAII. It it just easier to remember the meaning. However, it's hard to change a term that's been around longer than the Super Nintendo.
+On a side note, I really prefer the term CADRe, or Constructor Acquires-Destructor Releases, as a better name for remembering RAII. It is just easier to remember the meaning. However, it's hard to change a term that's been around longer than the Super Nintendo.
 
 ## Property of a Data Member that Must Be True
 
@@ -123,7 +123,7 @@ private:
 
 Here, the invariance is a condition between a member and the constant *2*.
 
-I admit that this third category could be considered broard and open-ended. Developers could choose to interpret this to justify just about any data needing to be in a class. Most of the time, the manipulation of a data member is going to be compared to some constant data or literal. Developers should really scrutinize if piece of data really needs that rule enforced before choosing to use a class.
+I admit that this third category could be considered broad and open-ended. Developers could choose to interpret this to justify just about any data needing to be in a class. Most of the time, the manipulation of a data member is going to be compared to some constant data or literal. Developers should scrutinize if a piece of data needs that rule enforced before choosing to use a class.
 
 ## 'Invariant' Doesn't Mean Immutability
 
@@ -197,8 +197,8 @@ With these simple examples in mind, here is what the Guidelines say about when t
 
 ## But what about when my invariants or data change?
 
-One of the concerns that can arise from choosing to put data into a struct instead of a class with getters and setters is that those methods provide an interface that insulates callers if the underlying data needs to change. I agree that this not only can but absolutely *will* happen at some point. However, I think a couple of things can serve as protections. First, [DMI](dmi.md) gives guidance that keeps the scope of data small, meaning that the scope of changes will also be small. Second, changing from setting a variable directly to calling a getter or setter is a pretty minor refactor. Third, the placement of data is often just a best guess at first anyway, so the location, type, etc. of data is likely to change over time anyway. The setter/getter interface is also likely change from the first implementation. Modern IDEs continue to make this easier and easier, and the introduction of AI will only continue this trend.
+One of the concerns that can arise from choosing to put data into a struct instead of a class with getters and setters is that those methods provide an interface that insulates callers if the underlying data needs to change. I agree that this not only can but absolutely *will* happen at some point. However, I think a couple of things can serve as protections. First, [DMI](dmi.md) gives guidance that keeps the scope of data small, meaning that the scope of changes will also be small. Second, changing from setting a variable directly to calling a getter or setter is a minor refactor. Third, the placement of data is often just a best guess at first, so the location, type, etc. of data is likely to change over time anyway. The setter/getter interface is also fluid in the first implementation. Modern IDEs continue to make this easier, and the introduction of AI will only continue this trend.
 
 ## Conclusion
 
-Invariance is an important concept that can serve as a real guidance in the design and implementation of our code. It's integral to [DMI](dmi.md), so check out that blog if you're interested in learning more!
+Invariance is an important concept that can serve as a guidance in the designing and implementing code. It's integral to [DMI](dmi.md), so check out that blog to learn more about how this technique helps fulfill the Single Responsibility and Open-Closed Principles!
