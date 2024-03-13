@@ -131,7 +131,7 @@ Keep in mind that invariance means a relationship, not that the data cannot chan
 
 ## So Why Do Invariants Matter?
 
-[DMI](dmi.md) uses invariance as one of the key heuristics when determining if a class, a struct, or a free function should be implemented based on [C.2](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c2-use-class-if-the-class-has-an-invariant-use-struct-if-the-data-members-can-vary-independently) from the Guidelines.
+[DMI](dmi.md) uses invariance as one of the key heuristics when determining if a class, a struct, or a free function should be implemented based on [C.2](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c2-use-class-if-the-class-has-an-invariant-use-struct-if-the-data-members-can-vary-independently) from the Guidelines. In that blog, I discuss more about applying invariance in the Decision Making Isolation philosophy.
 
 ## Complete Cpp Core Guideline on Invariance
 
@@ -201,4 +201,4 @@ One of the concerns that can arise from choosing to put data into a struct inste
 
 ## Conclusion
 
-Invariance is an important concept that can serve as a guidance in the designing and implementing code. It's integral to [DMI](dmi.md), so check out that blog to learn more about how this technique helps fulfill the Single Responsibility and Open-Closed Principles!
+Invariance is an important concept that can serve as a guidance in the designing and implementing code. It's integral to [DMI](dmi.md), so check out that blog to learn more about how to invariance is applied in DMI to fulfill the Single Responsibility and Open-Closed Principles!
