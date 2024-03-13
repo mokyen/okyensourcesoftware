@@ -137,7 +137,7 @@ Keep in mind that invariance means a relationship, not that the data cannot chan
 
 With these simple examples in mind, here is what the Guidelines say about when to use a class in [C.2](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c2-use-class-if-the-class-has-an-invariant-use-struct-if-the-data-members-can-vary-independently):
 
-> ### <a name="Rc-struct"></a>C.2: Use `class` if the class has an invariant; use > `struct` if the data members can vary independently
+> ### <a name="Rc-struct"></a>C.2: Use `class` if the class has an invariant; use `struct` if the data members can vary independently
 >
 > #### Reason
 >
