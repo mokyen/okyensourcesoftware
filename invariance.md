@@ -23,7 +23,7 @@ Let's break down each of these.
 
 ## Relationships Between Members
 
-Here's a simple example.
+Here is a simple example.
 
 Consider a simple electrical circuit that is characterized by Ohm's Law:
 
