@@ -2,6 +2,18 @@
 
 The term 'invariant' is one of the linchpins of Decision Making Isolation. It is used in the [Cpp Core Guidelines](https://isocpp.github.io/CppCoreGuidelines) as the reason to use a class versus struct. But what does it really mean?
 
+## Struct vs Class
+
+Before we discuss invariance, let's take a look at what else the [Cpp Core Guidelines](https://isocpp.github.io/CppCoreGuidelines) say about the difference between a class and struct.
+
+* [C.8](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c8-use-class-rather-than-struct-if-any-member-is-non-public): Use `class` rather than `struct` if any member is non-public
+
+While `class` and `struct` are relatively equivalent in C++, the Guidelines set the convention that structs are intended to only contain public members. Because all public data members can be directly modified, I believe it can be inferred that structs also shouldn't have public member functions. In the [DMI blog](dmi.md), we'll go more into the preference for free functions. For now, we'll assume that structs only have public data members and no functions.
+
+* [C.2](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c2-use-class-if-the-class-has-an-invariant-use-struct-if-the-data-members-can-vary-independently): Use `class` if the class has an invariant; use `struct` if the data members can vary independently.
+
+The Guidelines also state the guidance that a class should be used when the data has an invariant. This guidance seems relatively clear-cut for deciding which type of object to use. However, the concept of *invariance* isn't trivial!
+
 ## Defining Invariance
 
 In [C.2](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c2-use-class-if-the-class-has-an-invariant-use-struct-if-the-data-members-can-vary-independently), the Guidelines define invariance as:
@@ -16,10 +28,12 @@ I've read this explanation over and over, but it still never quite made sense in
 > An invariant is a logical condition for the members of an object that can be expected to be true from the time the constructor exits to the time the destructor is called. These logical conditions fall into three categories.
 >
 > * A relationship between at least two data members such that all members cannot vary independently.
-> * A relationship between a data member and a resource (aka RAII).
+> * A guarantee that any function with access to a resource may be called at any time, i.e. implementing RAII.
 > * A property of a data member that must always be true.
 
-Let's break down each of these.
+A key for me is remembering that an invariance is **a logical condition**.
+
+Let's break down each of these types.
 
 ## Relationships Between Members
 
@@ -29,7 +43,7 @@ Consider a simple electrical circuit that is characterized by Ohm's Law:
 
 > volts = current * resistance
 
-Ohm's law dictates that if you vary any one of the parameters, at least one other must also change. If the voltage increases, either the current or resistance must also increase. If the current decreases, either the resistance will increase or the voltage will decrease. They cannot be changed independently. If we were to code up an object that held these parameters, the parameters couldn't be public members. We'd need to enforce the invariance dictated by Ohm's Law.
+Ohm's law dictates that if you vary any one of the parameters, at least one other must also change. If the voltage increases, either the current or resistance must also increase. If the current decreases, either the resistance will increase or the voltage will decrease. They cannot be changed independently. If we were to code up an object that held these parameters, the parameters couldn't be public members. We'd need to enforce the invariance dictated by Ohm's Law, so then we'd choose to use a class instead of a struct.
 
 ```cpp
 class SimpleCiruit {
@@ -84,23 +98,27 @@ private:
 };
 ```
 
-The variable `m_isLightOn` on can change completely independently from `m_brightness`, but the reverse is not true. Therefore, these two pieces of data still have an invariance, or, said another way, the relationship between these two is an invariant.
+The variable `m_isLightOn` on can change completely independently from `m_brightness`, but the reverse is not true. Therefore, these two pieces of data still have an invariance: the brightness will only be updated when the light is on.
 
-## Relationship Between a Member and Resource
+## Guaranteeing Manipulation of a Resource, or RAII
 
-When a data member needs to have a relationship with a "resource," the [Cpp Core Guidelines' recommended programming idiom is RAII](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#p8-dont-leak-any-resources).
+Resources such as files, sockets, or heap memory need to be managed so that the right steps are made to open/close, connect/close, or allocate/deallocate these assets. It can be dangerous to assume that a caller will properly implement the correct initialization/deinitialization, so the [Resource Allocation is Initialization, or RAII,](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#p8-dont-leak-any-resources) technique was devised to encapsulate the assets. When RAII is utilized, the wrapping entity guarantees that any function that can access that object can be called from the end of its constructor until its destructor is called.
+
+This guarantee is our second form of invariance.
 
 cppreference.com [defines Resource Allocation Is Initialization](https://en.cppreference.com/w/cpp/language/raii) as:
 
 > Resource Acquisition Is Initialization, or RAII, is a C++ programming technique that binds the life cycle of a resource that must be acquired before use (allocated heap memory, thread of execution, open socket, open file, locked mutex, disk space, database connection—anything that exists in limited supply) to the lifetime of an object.
+>
+> RAII guarantees that the resource is available to any function that may access the object (resource availability is a [class invariant](https://en.wikipedia.org/wiki/Class_invariant), eliminating redundant runtime tests). It also guarantees that all resources are released when the lifetime of their controlling object ends, in reverse order of acquisition.
 
-RAII establishes a relationship between the data member and the resource. Placing a file handle as a public member would be dangerous, as changing it could create a memory leak. RAII creates an invariance between the member and the resource.
+Since the goal of RAII is to insulate the resource from direct manipulation, this necessitates that we use a class instead of a struct based on our previous discussion.
 
-On a side note, I really prefer the term CADRe, or Constructor Acquires-Destructor Releases, as a better name for remembering RAII. It is just easier to remember the meaning. However, it's hard to change a term that's been around longer than the Super Nintendo.
+*On a side note, I really prefer the term CADRe, or Constructor Acquires-Destructor Releases, as a better name for remembering RAII. It is just easier to remember the meaning. However, it's hard to change a term that's been around longer than the Super Nintendo.*
 
 ## Property of a Data Member that Must Be True
 
-The final type of invariance is similar to the first but isn't a relationship between data members. Instead, there's something that needs to be enforced about a member. Maybe our integer needs to always be even. Perhaps a string can only be a certain length. One of the most common places this is seen is in nontrivial getters or setters for an object that performs some enforcement.
+The final type of invariance is similar to the first but isn't a relationship between data members. Instead, some condition of a data member exists that must be enforced unrelated to another data member. Maybe our integer needs to always be even. Perhaps a string can only be a certain length. One of the most common places this is seen is in nontrivial getters or setters for an object that performs some enforcement.
 
 Consider this example:
 
@@ -123,11 +141,15 @@ private:
 
 Here, the invariance is a condition between a member and the constant *2*.
 
-I admit that this third category could be considered broad and open-ended. Developers could choose to interpret this to justify just about any data needing to be in a class. Most of the time, the manipulation of a data member is going to be compared to some constant data or literal. Developers should scrutinize if a piece of data needs that rule enforced before choosing to use a class.
+Examples of such conditions that might be enforced:
+
+****TODO**: I am struggling to come up with other items for this list.**
+
+* Comparisons to a constant or literal
 
 ## 'Invariant' Doesn't Mean Immutability
 
-Keep in mind that invariance means a relationship, not that the data cannot change. The term in software for something that cannot change is immutability.
+Remember that invariance means a logical condition that must always be true, not that the data cannot change. The term in software for something that cannot change is *immutability*.
 
 ## So Why Do Invariants Matter?
 
@@ -197,8 +219,10 @@ With these simple examples in mind, here is what the Guidelines say about when t
 
 ## But what about when my invariants or data change?
 
-One of the concerns that can arise from choosing to put data into a struct instead of a class with getters and setters is that those methods provide an interface that insulates callers if the underlying data needs to change. I agree that this not only can but absolutely *will* happen at some point. However, I think a couple of things can serve as protections. First, [DMI](dmi.md) gives guidance that keeps the scope of data small, meaning that the scope of changes will also be small. Second, changing from setting a variable directly to calling a getter or setter is a minor refactor. Third, the placement of data is often just a best guess at first, so the location, type, etc. of data is likely to change over time anyway. The setter/getter interface is also fluid in the first implementation. Modern IDEs continue to make this easier, and the introduction of AI will only continue this trend.
+One potential critique of these guidelines for choosing a struct versus a class is that public member functions provide an interface that isolates the private data members from the users of that object. If I have a class with a getter, I can change the type of that private data without modifying calls to the getter as long as the return type remains the same. If a struct is used and the data members are manipulated directly, any change to the types of those data members impacts the struct's consumer. Additionally, if a struct is used and we need to introduce an invariance for the private data (which would necessitate a switch from a struct to a class), then we'll also have to modify all the callers. Using a class is less likely to cause the callers of its member functions to change.
+
+I agree that this is definitely a tradeoff. I think a couple of things can serve to minimize the impact of these scenarios. First, [DMI](dmi.md) gives guidance that keeps the scope of data small, meaning that the scope of updates when objects change will also be small. Second, changing from setting a variable directly to calling a getter or setter when a new invariance is introduced is a minor refactor. Third, the placement of data is often just a best guess at first, so the location, type, etc. of data is likely to change over time anyway. The setter/getter interface is also fluid early in development. Modern IDEs significantly simplify these types of refactors, and the introduction of AI will only continue this trend.
 
 ## Conclusion
 
-Invariance is an important concept that can serve as a guidance in the designing and implementing code. It's integral to [DMI](dmi.md), so check out that blog to learn more about how to invariance is applied in DMI to fulfill the Single Responsibility and Open-Closed Principles!
+Invariance is an important concept that can serve as guidance in designing and implementing code. It's integral to [DMI](dmi.md), so check out that blog to learn more about how invariance is applied in DMI to fulfill the Single Responsibility and Open-Closed Principles!
