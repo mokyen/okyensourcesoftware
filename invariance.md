@@ -139,13 +139,7 @@ private:
 };
 ```
 
-Here, the invariance is a condition between a member and the constant *2*.
-
-Examples of such conditions that might be enforced:
-
-****TODO**: I am struggling to come up with other items for this list.**
-
-* Comparisons to a constant or literal
+Here, the invariance is a condition between a member and the constant *2*.The most common case of this type of invariance is comparisons to a constant or literal, like the previous example. However, a similar case occurs when the invariance is a mathematical algorithm that must be applied to a member. For instance, a class could exists that stores an angle in radians but must convert the value to be in the range -2π to 2π. This is more involved than simply comparing to a constant, but it's a similar logical assertion that necessitates using a class.
 
 ## 'Invariant' Doesn't Mean Immutability
 
