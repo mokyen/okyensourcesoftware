@@ -8,7 +8,7 @@ Before we discuss invariance, let's take a look at what else the [Cpp Core Guide
 
 * [C.8](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c8-use-class-rather-than-struct-if-any-member-is-non-public): Use `class` rather than `struct` if any member is non-public
 
-While `class` and `struct` are relatively equivalent in C++, the Guidelines set the convention that structs are intended to only contain public members. Because all public data members can be directly modified, I believe it can be inferred that structs also shouldn't have public member functions. In the [DMI blog](dmi.md), we'll go more into the preference for free functions. For now, we'll assume that structs only have public data members and no functions.
+While `class` and `struct` are relatively equivalent in C++, the Guidelines set the convention that structs are intended to only contain public members. Because all public data members can be directly modified, I believe it can be inferred that structs also shouldn't have public member functions. In the [Decision Making Isolation (DMI) blog](dmi.md), we'll go more into the preference for free functions. For now, we'll assume that structs only have public data members and no functions.
 
 * [C.2](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c2-use-class-if-the-class-has-an-invariant-use-struct-if-the-data-members-can-vary-independently): Use `class` if the class has an invariant; use `struct` if the data members can vary independently.
 
@@ -100,7 +100,7 @@ private:
 
 The variable `m_isLightOn` on can change completely independently from `m_brightness`, but the reverse is not true. Therefore, these two pieces of data still have an invariance: the brightness will only be updated when the light is on.
 
-## Guaranteeing Manipulation of a Resource, or RAII
+## Guaranteeing Lifetime of an Owned Resource, or RAII
 
 Resources such as files, sockets, or heap memory need to be managed so that the right steps are made to open/close, connect/close, or allocate/deallocate these assets. It can be dangerous to assume that a caller will properly implement the correct initialization/deinitialization, so the [Resource Allocation is Initialization, or RAII,](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#p8-dont-leak-any-resources) technique was devised to encapsulate the assets. When implementing RAII, the wrapping entity (object) guarantees that any function that can access the underlying resource can be called from the end of the object's constructor until the object's destructor is called.
 
@@ -114,7 +114,7 @@ cppreference.com [defines Resource Allocation Is Initialization](https://en.cppr
 
 Since the goal of RAII is to insulate the resource from direct manipulation, this necessitates that we use a class instead of a struct based on our previous discussion.
 
-*On a side note, I really prefer the term CADRe, or Constructor Acquires-Destructor Releases, as a better name for remembering RAII. It is just easier to remember the meaning. However, it's hard to change a term that's been around longer than the Super Nintendo.*
+*On a side note, I really prefer the term CADRe, or Constructor Acquires-Destructor Releases, as a better name for remembering RAII. It is just easier to remember the meaning. However, it's hard to change a term that might have been around [longer than the Super Nintendo](https://www.stroustrup.com/bs_faq.html#:~:text=I%20held%20back%20the%20introduction%20of%20exceptions%20into%20C%2B%2B%20for%20half%20a%20year%20until%20I%20discovered%20RAII%20(1988).%20RAII%20is%20an%20integral%20and%20necessary%20part%20of%20the%20C%2B%2B%20exception%20mechanism) (or at least [older than the Nintendo 64](https://www.cardinalpeak.com/blog/raii-introduction), depending on your source).*
 
 ## Property of a Data Member that Must Be True
 

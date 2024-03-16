@@ -24,13 +24,13 @@ Any field that is as big and fast-developing as software is going to be plagued 
 
 > The entities of a C++ program are values, objects, references, structured bindings(since C++17), functions, enumerators, types, class members, templates, template specializations, parameter packs(since C++11), and namespaces. Preprocessor macros are not C++ entities.
 
-I realize that 'entity layer' is a term in *Clean Architecture* and 'entity' is a type of object in *Domain Driven Design*. It's still the best term I've found to date.
+I realize that 'entity layer' is a term in Robert Martin's *Clean Architecture* and 'entity' is a type of object in *Domain Driven Design*. It's still the best term I've found to date.
 
 In this blog, I am mostly using the term entities to refer to classes, structs, and free functions.
 
 ## The Challenge with SRP and OCP
 
-TBD.
+Earlier in my career, I read about the SOLID Principles, and I thought that I had unlocked the tactical guidance that would lead me to the quality code promised land. After more than a dozen years, I still find these to be philosophical concepts reather than practical and actionable strategies.
 
 ### SRP
 
@@ -44,11 +44,23 @@ In *Clean Architecture*, Uncle Bob refines this as:
 
 (Note that Martin states that the term 'module' here refers to "a cohesive set of functions and data structures", not to [C++20 modules](https://en.cppreference.com/w/cpp/language/modules).)
 
-Klaus Iglberger states SRP a bit differently as...
+On the surface, this seems like clear guidance. In application, I have always had difficulty deciding the granularity of a "reason" or identifying the "actor". Are the actors any other classes that use the class, or would they be only calls that come from a different component? Are the actors individuals/teams on the project? Are the requirements themselves an actor? How small of a reason do you need to arrive at an appropriately sized entity?
+
+I can look at back at my code over the past six or seven years and see how my interpretation of SRP has changed, but I have always sought more concrete guidelines.
 
 ### OCP
 
-TBD
+The Open-Closed Principle was introduced in 1998 by Bertrand Meyer. Uncle Bob paraphrased this as
+
+> "Software entities (classes, modules, functions, etc.) should be open for extension, but closed for modification."
+
+Early in my career, this seemed like ludacris advise. How could I possible write something that doesn't need modification in the future?! I can't predict this! Do I just need to make mistakes for a decade or more until I gain the wisdom to know?
+
+The basis of OCP is that we should implement abstractions, often via an abstract base class (ABC), that abstract away private details about a specific implementation of the abstraction. The abstraction becomes an contract between the object and its callers.
+
+So what did I do when I first learned this? Everything is a class, and every class inherits from an ABC! IEverything! All hail the mighty interface! Dependency injection solves it all! Of course, this meant that I had ABCs for classes that only ever had one implementation. Every caller took a smart pointer, and [composition relationships](https://www.ibm.com/docs/en/rsm/7.5.0?topic=diagrams-composition-association-relationships) were disallowed.
+
+Was I really closed to modification when I was regularly changing my one or two implementation of an ABC and the ABC itself?
 
 ## Core Guidelines
 
@@ -272,7 +284,7 @@ Flag classes declared with `struct` if there is a `private` or `protected` membe
 The vision of DMI is this:
 
 > [!Important]
-> The most important parts of our code are the places where we decide what should happen. If these decisions are isolated, that critical code is easy to read, modify, extend, and test. If those key decisions are implemented correctly, then we can feel confident that our code trying to do what we expect it to do.
+> The most important parts of our code are the places where we decide what should happen. If these decisions are isolated, that critical code is easy to read, modify, extend, and test. If those key decisions are implemented correctly, then we can feel confident that our code is trying to do what we expect it to do.
 
 To achieve this, we have four key goals in DMI:
 
@@ -293,9 +305,9 @@ Let's look at a simple class example.
     class RequestHandler
     {
     private:
-        Outputter* m_outputter;
+        IOutputter* m_outputter;
     public:
-        RequestHandler (Outputter* outputter) : m_outputter(outputter)
+        RequestHandler (IOutputter* outputter) : m_outputter(outputter)
         {}
 
         void processRequest(EState state){
@@ -315,9 +327,11 @@ This class is fairly easy to read, but of course, it's only a few lines long. As
 
 This is also pretty simple to modify or extend at this scale. However, what if there are more considerations in determining what to send than just the `state`? I assume that most programmers have seen the twisted webs that can arise from switch statements. Being *closed to modification* seems a bit of a stretch.
 
-Testing this class is relatively difficult for such a simple class. I would have to create a spy, fake, or mock version of the `Outputter` object that I can inject into this class. Therefore, `RequestHandler` tests would be broken if the interface of `Outputter` changed.
+Testing this class is relatively difficult for such a simple class. I would have to create a spy, fake, or mock version of the `IOutputter` object that I can inject into this class. Therefore, `RequestHandler` tests would be broken if the interface of `IOutputter` changed.
 
-In the past, I would have said this class fulfills SRP. It has a Single Responsibility - to process a request. However, the coupling between the `Outputter` and the logic means that one *actor* could cause this to change.
+In the past, I would have said this class fulfills SRP. It has a Single Responsibility - to process a request. However, the coupling between the `IOutputter` and the logic means that one *actor* could cause this to change.
+
+I would have also felt that the `IOutputter` class was fulfilling the OCP by being an ABC that is injected. **TODO Need to finish this. The question if this class is meeting OCP is really about whether or not IOutputter is in the same component.**
 
 The crux of the issue here is that all three types of code are combined into the processRequest function. DMI to the rescue!
 
@@ -327,20 +341,26 @@ Well, we're finally going to talk about the key term in this whole methodology. 
 
 Decision-making code is where the logic occurs within the code. In the `processRequest` function, the logic is just the `switch` that determines what will occur. This is where we determine **what** we will do.
 
+These decisions are isolated either into free functions or small classes (using some heuristics we'll discuss later). When classes are used, thos objects can only contain data members that can be created and owned via composition. Dependency injection is not permitted in decision making code, because anything injected tends to be IO.
+
+The decision making code tends to be focused on conditionals and often returns flags or enums that indicate what actions should be taken.
+
 #### IO
 
-Here, IO (inputs and outputs) does not refer to hardware or other layers of code. In DMI, IO is any injected dependency that would need to be **TBD**.
+Here, IO (inputs and outputs) does not refer to hardware or other layers of code. In DMI, IO is an entity that executes that  dependency that would need to be **TBD**. The IO is often the code that executes the action determined by the decision making. These objects either passed to the wiring code via dependency injection 
 
 Features:
 
 * Not owned by the parent (composition)
 * Cannot be created without external dependencies
 
-The calls to `m_outputter` IO.
+In our example code, the calls to `m_outputter` are IO.
+
+IO code is 
 
 #### Wiring
 
-Wiring code is all the rest. It's the code that stitches together the decision-making and the IO. This code tends to be relatively, well, *boring*, and it's easy to read.
+Wiring code is all the rest. It's the code that stitches together the decision-making and the IO. This code tends to be relatively, well, *boring*, and it's easy to read. However, it is also difficult to test because of the IO dependencies. The easy of readability vs the complexity to test makes unit testing low value, so we don't do it.
 
 ### Example Rewritten using DMI
 
@@ -349,9 +369,9 @@ So what would the `RequestHandler` look like if we refactored it with DMI?
 ```cpp
 class RequestHandler {
 private:
-    Outputter* m_outputter;
+    IOutputter* m_outputter;
 public:
-    RequestHandler (Outputter* outputter) : m_outputter(outputter) {}
+    RequestHandler (IOutputter* outputter) : m_outputter(outputter) {}
     //Wiring
     void processRequest(EState state) {
         auto data = decide(state); //Decision-making
@@ -404,9 +424,9 @@ So how would we test the original `RequestHandler` implementation? Here, we use 
 class RequestHandler
 {
 private:
-    Outputter* m_outputter;
+    IOutputter* m_outputter;
 public:
-    RequestHandler (Outputter* outputter) : m_outputter(outputter) {}
+    RequestHandler (IOutputter* outputter) : m_outputter(outputter) {}
  
     void processRequest(EState state){
         switch (state){
@@ -421,7 +441,7 @@ public:
 };
 
 //Test double
-class FakeOutputter : public Outputter {
+class FakeOutputter : public IOutputter {
 public:
     void send(int a){
         m_lastDataSent = a;
@@ -442,7 +462,7 @@ TEST(RequestHandlerTests, GivenState1_Return1) {
 } 
 ```
 
-Just as we discussed before, at this level of complexity the the code doesn't look too bad. However, `FakeOutputter` will only continue to get more and more complex. This test will break if the signature of `Outputter` ever changes even if the RequestHandler stays the same. The test evaluates if the code does the right thing and the way it does that thing.
+Just as we discussed before, at this level of complexity the the code doesn't look too bad. However, `FakeOutputter` will only continue to get more and more complex. This test will break if the signature of `IOutputter` ever changes even if the RequestHandler stays the same. The test evaluates if the code does the right thing and the way it does that thing.
 
 On a side note, I have increasingly come to prefer fakes over mocks. Mocking frameworks are incredibly powerful, but they have their own complexities and caveats that are sometimes ignored. This will probably turn into its own blog someday.
 
@@ -451,9 +471,9 @@ Now let's consider the unit test for the `RequestHandler` using DMI.
 ```cpp
 class RequestHandler {
 private:
-    Outputter* m_outputter;
+    IOutputter* m_outputter;
 public:
-    RequestHandler (Outputter* outputter) : m_outputter(outputter) {}
+    RequestHandler (IOutputter* outputter) : m_outputter(outputter) {}
     //Wiring
     void processRequest(EState state) {
         auto data = RequestHandlerHelpers::decide(state); //Decision-making
@@ -511,6 +531,10 @@ Consider a hardware driver, which would be in one of the outer layers. Some deci
 
 **TODO: NEED MORE DETAILED EXAMPLE**
 
+## Conclusion
+
+TBD.
+
 ## References
 
 * Martin, R. (n.d.). Principles of OOD. butunclebob.com. Retrieved December 28, 2023, from <http://butunclebob.com/ArticleS.UncleBob.PrinciplesOfOod>
@@ -520,5 +544,8 @@ Consider a hardware driver, which would be in one of the outer layers. Some deci
 * Iglberger, K. (2023). C++ Software Design: Design Principles and Patterns for High-Quality Software. O’Reilly Media.
 * C++ Core Guidelines. (2023, October 12). Retrieved January 2, 2024, from <https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines>
 * Iglberger, Klaus. (2022). Breaking Dependencies: The Path to High-Quality Software [PowerPoint slides]. <https://meetingcpp.com/mcpp/slides/2022/Breaking%20Dependencies8158.pdf>.
+* Object Oriented Software Construction, Bertrand Meyer, Prentice Hall, 1988, p23
 
 OCP Article: <https://drive.google.com/file/d/0BwhCYaYDn8EgN2M5MTkwM2EtNWFkZC00ZTI3LWFjZTUtNTFhZGZiYmUzODc1/view?resourcekey=0-FsS837CGML599A_o5D-nAw>
+
+OCP: Uncle Bob talking about how you must get code in front of customers to figure out where to put abstractions: <https://youtu.be/zHiWqnTWsn4?si=lTqlvMmbNuRq14oE&t=4265>
