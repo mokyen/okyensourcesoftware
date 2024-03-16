@@ -102,7 +102,7 @@ The variable `m_isLightOn` on can change completely independently from `m_bright
 
 ## Guaranteeing Manipulation of a Resource, or RAII
 
-Resources such as files, sockets, or heap memory need to be managed so that the right steps are made to open/close, connect/close, or allocate/deallocate these assets. It can be dangerous to assume that a caller will properly implement the correct initialization/deinitialization, so the [Resource Allocation is Initialization, or RAII,](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#p8-dont-leak-any-resources) technique was devised to encapsulate the assets. When RAII is utilized, the wrapping entity guarantees that any function that can access that object can be called from the end of its constructor until its destructor is called.
+Resources such as files, sockets, or heap memory need to be managed so that the right steps are made to open/close, connect/close, or allocate/deallocate these assets. It can be dangerous to assume that a caller will properly implement the correct initialization/deinitialization, so the [Resource Allocation is Initialization, or RAII,](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#p8-dont-leak-any-resources) technique was devised to encapsulate the assets. When implementing RAII, the wrapping entity (object) guarantees that any function that can access the underlying resource can be called from the end of the object's constructor until the object's destructor is called.
 
 This guarantee is our second form of invariance.
 
@@ -153,7 +153,7 @@ Remember that invariance means a logical condition that must always be true, not
 
 With these simple examples in mind, here is what the Guidelines say about when to use a class in [C.2](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c2-use-class-if-the-class-has-an-invariant-use-struct-if-the-data-members-can-vary-independently):
 
-> ### <a name="Rc-struct"></a>C.2: Use `class` if the class has an invariant; use `struct` if the data members can vary independently
+> ### C.2: Use `class` if the class has an invariant; use `struct` if the data members can vary independently
 >
 > #### Reason
 >
@@ -213,7 +213,7 @@ With these simple examples in mind, here is what the Guidelines say about when t
 
 ## But what about when my invariants or data change?
 
-One potential critique of these guidelines for choosing a struct versus a class is that public member functions provide an interface that isolates the private data members from the users of that object. If I have a class with a getter, I can change the type of that private data without modifying calls to the getter as long as the return type remains the same. If a struct is used and the data members are manipulated directly, any change to the types of those data members impacts the struct's consumer. Additionally, if a struct is used and we need to introduce an invariance for the private data (which would necessitate a switch from a struct to a class), then we'll also have to modify all the callers. Using a class is less likely to cause the callers of its member functions to change.
+One potential critique of these guidelines for choosing a struct versus a class is that public member functions provide an interface that isolates the private data members from the users of that object. If I have a class with a getter, I can change the type of that private data without modifying calls to the getter as long as the return type remains the same. If a struct is used and the data members are manipulated directly, any change to the types of those data members impacts the struct's users. Additionally, if a struct is used and we need to introduce an invariance (which would necessitate private data and therefore a switch from a struct to a class), then we'll also have to modify all the users. Using a class is less likely to cause the callers of its member functions to change.
 
 I agree that this is definitely a tradeoff. I think a couple of things can serve to minimize the impact of these scenarios. First, [DMI](dmi.md) gives guidance that keeps the scope of data small, meaning that the scope of updates when objects change will also be small. Second, changing from setting a variable directly to calling a getter or setter when a new invariance is introduced is a minor refactor. Third, the placement of data is often just a best guess at first, so the location, type, etc. of data is likely to change over time anyway. The setter/getter interface is also fluid early in development. Modern IDEs significantly simplify these types of refactors, and the introduction of AI will only continue this trend.
 
