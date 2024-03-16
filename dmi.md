@@ -8,13 +8,13 @@ The SOLID principles were first published by Robert C. Martin (aka Uncle Bob). F
 
 The baseline goal of software is code that *works*, but that's what I would call "functional code."
 
-The real measure isn't if software works when a feature is first completed or even sometimes at the first release. Instead, the true test comes as that software has to change.
+The real measure isn't if a piece of software works when a feature is first completed or even sometimes at the first release. Instead, the true test comes as that software has to change.
 
 Klaus Iglberger gave this definition:
 
 "High-quality software is easy to change, easy to extend, and easy to test." (Iglberger, 2022)
 
-I would also add 'readability' to this list. It could be argued that readability implied in the ability to change and extend, but I contend that other developers will also need to be able to read your code to understand it even if they are not modifying it in any way, such as when they use your API.
+I would also add 'readability' to this list. It could be argued that readability is implied in the ability to change and extend, but I contend that other developers will also need to be able to read your code to understand it even if they are not modifying it in any way, such as when they use your API.
 
 Therefore, I propose that quality software is easy to *read, modify, extend, and test.*
 
@@ -26,7 +26,7 @@ Any field that is as big and fast-developing as software is going to be plagued 
 
 I realize that 'entity layer' is a term in *Clean Architecture* and 'entity' is a type of object in *Domain Driven Design*. It's still the best term I've found to date.
 
-In this blog, I am mostly talking about entities as classes, structs, and free functions.
+In this blog, I am mostly using the term entities to refer to classes, structs, and free functions.
 
 ## The Challenge with SRP and OCP
 
@@ -42,7 +42,7 @@ In *Clean Architecture*, Uncle Bob refines this as:
 
 > "A module should be responsible to one, and only one, actor."
 
-(Note that Martin states that the term 'module' here is referring to "a cohesive set of functions and data structures", not to [C++20 modules](https://en.cppreference.com/w/cpp/language/modules).)
+(Note that Martin states that the term 'module' here refers to "a cohesive set of functions and data structures", not to [C++20 modules](https://en.cppreference.com/w/cpp/language/modules).)
 
 Klaus Iglberger states SRP a bit differently as...
 
@@ -272,7 +272,7 @@ Flag classes declared with `struct` if there is a `private` or `protected` membe
 The vision of DMI is this:
 
 > [!Important]
-> The most important part of our code are the places where we decide what should happen. If these decisions are isolated, that critical code is easy to read, modify, extend, and test. If those key decisions are implemented correctly, then we can feel confident that our code trying to do what we expect it to do.
+> The most important parts of our code are the places where we decide what should happen. If these decisions are isolated, that critical code is easy to read, modify, extend, and test. If those key decisions are implemented correctly, then we can feel confident that our code trying to do what we expect it to do.
 
 To achieve this, we have four key goals in DMI:
 
@@ -311,13 +311,13 @@ Let's look at a simple class example.
     };
 ```
 
-This class is fairly easy to read, but of course it's only a few lines long. As it grows, it's easy to imagine that the `switch` statement could grow increasingly complex and harder to follow.
+This class is fairly easy to read, but of course, it's only a few lines long. As it grows, it's easy to imagine that the `switch` statement could grow increasingly complex and harder to follow.
 
-This is also pretty simple to modify or extend at this scale. However, what if there are more considerations in determining what to send than just the `state`? I assume that most programmers have seen the twisted webs than can arise from switch statements. Being *closed to moficiation* seems a bit of stretch.
+This is also pretty simple to modify or extend at this scale. However, what if there are more considerations in determining what to send than just the `state`? I assume that most programmers have seen the twisted webs that can arise from switch statements. Being *closed to modification* seems a bit of a stretch.
 
 Testing this class is relatively difficult for such a simple class. I would have to create a spy, fake, or mock version of the `Outputter` object that I can inject into this class. Therefore, `RequestHandler` tests would be broken if the interface of `Outputter` changed.
 
-In the past, I would have this class fulfills SRP. It has a Single Responsibility - to process a request. However, the coupling between the `Outputter` and the logic means that one *actor* could cause this to change.
+In the past, I would have said this class fulfills SRP. It has a Single Responsibility - to process a request. However, the coupling between the `Outputter` and the logic means that one *actor* could cause this to change.
 
 The crux of the issue here is that all three types of code are combined into the processRequest function. DMI to the rescue!
 
@@ -329,7 +329,7 @@ Decision-making code is where the logic occurs within the code. In the `processR
 
 #### IO
 
-Here, IO (inputs and outputs) does not refer to hardware or other layers of code. In DMI, IO is any injected dependency that would need to be .
+Here, IO (inputs and outputs) does not refer to hardware or other layers of code. In DMI, IO is any injected dependency that would need to be **TBD**.
 
 Features:
 
@@ -374,13 +374,13 @@ int decide(EState state) {
 }
 ```
 
-The `switch` from before has moved to a pure free function. It has no external dependencie and is easy to read. The function has a single responsibility, so it is easy to maintain and extend. As a pure function, it is simple to test. That's our big four!
+The `switch` from before has moved to a pure free function. It has no external dependencies and is easy to read. The function has a single responsibility, so it is easy to maintain and extend. As a pure function, it is simple to test. That's our big four!
 
-The `m_outputter` dependency is only used in the wiring code. It would be simple to code review the wiring and feel comfortable it's doing what you expect.
+The `m_outputter` dependency is only used in the wiring code. It would be simple to code review the wiring and feel comfortable that it's doing what you expect.
 
 ## Unit Testing in DMI
 
-As previously mentioned, the original goal was to determine how to get more value from unit tests. The 'value' of testing is determined by the ratio of benfit versus cost:
+As previously mentioned, the original goal was to determine how to get more value from unit tests. The 'value' of testing is determined by the ratio of benefit versus cost:
 
 > | Benefit | Cost |
 > | ----------- | ----------- |
@@ -392,7 +392,7 @@ As previously mentioned, the original goal was to determine how to get more valu
 
  The decision making is the most important part to test, and using DMI makes this code easy to test. Therefore, the decision making is highly valuable.
 
-Since we've already tested the decisions, we could write tests for the remaining IO and wiring code. Testing this typically requires the use of test doubles, especially [spies, fakes, or mocks](https://martinfowler.com/bliki/TestDouble.html). All of these doubles attempt to simulate the injected object based on some assumptions which make them extremely coupled to that injected object. This leads to brittle tests. Using a mocking framework or creating a fake/stub isn't particularly difficult. However, I find that heavy testing of this IO leads to complicated tests that will break whenever the external dependencies change. The assumptions about these dependencies, especially if those dependencies are components outside of the developer's control like external libraries or embedded hardware, are also fragile. After you've made all of these assumptions, have you really increased your confidence that the code is functional? The benefit achieved is highly outweighed by the effort to create and maintain these tests.
+Since we've already tested the decisions, we could write tests for the remaining IO and wiring code. Testing this typically requires the use of test doubles, especially [spies, fakes, or mocks](https://martinfowler.com/bliki/TestDouble.html). All of these doubles attempt to simulate the injected object based on some assumptions that make them extremely coupled to that injected object. This leads to brittle tests. Using a mocking framework or creating a fake/stub isn't particularly difficult. However, I find that heavy testing of this IO leads to complicated tests that will break whenever the external dependencies change. The assumptions about these dependencies, especially if those dependencies are components outside of the developer's control like external libraries or embedded hardware, are also fragile. After you've made all of these assumptions, have you really increased your confidence that the code is functional? The benefit achieved is highly outweighed by the effort to create and maintain these tests.
 
 So does DMI advocate that the only automated testing should be for the decision making? What about all the rest of the code? No, we have a solution for that too. We'll get there.
 
@@ -442,7 +442,7 @@ TEST(RequestHandlerTests, GivenState1_Return1) {
 } 
 ```
 
-Just as we discussed before, at this level of complexity the the code doesn't look to bad. However, `FakeOutputter` will only continue to get more and more complex. This test will break if the signature of `Outputter` ever changes even if the RequestHandler stays the same. The test evaluates if the code does the right thing and the way it does that thing.
+Just as we discussed before, at this level of complexity the the code doesn't look too bad. However, `FakeOutputter` will only continue to get more and more complex. This test will break if the signature of `Outputter` ever changes even if the RequestHandler stays the same. The test evaluates if the code does the right thing and the way it does that thing.
 
 On a side note, I have increasingly come to prefer fakes over mocks. Mocking frameworks are incredibly powerful, but they have their own complexities and caveats that are sometimes ignored. This will probably turn into its own blog someday.
 
@@ -493,23 +493,23 @@ From these key takeaways, we have established the following guidelines as DMI wh
 * Consider the data that is core to the functionality of the entity. Identify any invariance(s) that exist.
 * Create a class to encapsulate any invariance.
 * All decision making should be unit tested
-* Unit tests should be preferred at the highest level possible that doesn't require IO. Other objects can be included in these tests so long as they do not have external dependencies that require mocking. However, it is at the developer's discretion to add in additional lower level unit tests as needed for clarity or to evaluate edge cases.
+* Unit tests should be preferred at the highest level possible that doesn't require IO. Other objects can be included in these tests so long as they do not have external dependencies that require mocking. However, it is at the developer's discretion to add in additional lower-level unit tests as needed for clarity or to evaluate edge cases.
 * Decision making should not have external dependencies. There shouldn't be any calls to outside objects to get or set data. Functions (free or member) should be as pure as possible.
 * Wiring code will typically not be unit test.
-* Integration tests should be written at the highest level reasonable to test the 'happy path(s)'. Any evaluation of error and edge cases should be handled through the unit tests and code reviews.
+* Integration tests should be written at the highest level reasonable to test the 'happy path(s)'. Any evaluation of error and edge cases should be handled through unit tests and code reviews.
 * Test doubles should be avoided whenever possible. If they are required, the priority order of desirability is inversely correlated with the general level of complexity. From most desirable to least should be: stub, dummy, spy, fake, mock.
 
 ## Is this just clean architecture or hexagonal architecture?
 
 For anyone familiar with [Uncle Bob's clean architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) or [Alistair Cockburn's hexagonal architecture](https://alistair.cockburn.us/hexagonal-architecture), it could seem that DMI is the same thing. However, both of those are architectural philosophies. DMI is about designing software entities, specifically classes, functions, and structs. The philosophies certainly have significant parallels, and DMI is absolutely compatible with these architectural paradigms. In some ways, DMI is the low-level design version of these philosophies.
 
-Clean architecture defines a set of layers within the code where inner layers are unaware of the outer layers so that all source code dependencies point towards inward. The most inner layers are the 'entity layer' and 'use case layer', Martin also refers to as the 'enterprise business rules' and 'application business rules', respectively.
+Clean architecture defines a set of layers within the code where inner layers are unaware of the outer layers so that all source code dependencies point inward. The innermost layers are the 'entity layer' and 'use case layer', which Martin also refers to as the 'enterprise business rules' and 'application business rules', respectively.
 
 So isn't all of the decision-making in DMI in these inner layers? No, because decisions are made at every level of code.
 
-Consider a hardware driver, which would be in one of the outer layers. There are decisions that are made based on the data sheet for that part, and there is value in testing those decisions.
+Consider a hardware driver, which would be in one of the outer layers. Some decisions are made based on the datasheet for that part, and there is value in testing those decisions.
 
-**TODO: NEED MORE DETAILD EXAMPLE**
+**TODO: NEED MORE DETAILED EXAMPLE**
 
 ## References
 
