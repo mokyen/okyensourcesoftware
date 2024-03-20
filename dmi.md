@@ -360,7 +360,31 @@ In our example code, the calls to `m_outputter` are IO.
 
 Wiring code is all the rest. It's the code that stitches together the decision-making and the IO. This cn sometimes be a class that serves as an architectural boundary, but it could also be a free function with all parameters passed in.
 
-Wiring code is intended to be relatively, well, *boring*, and it's easy to read. However, it is also difficult to test because of the IO dependencies. The easy of readability versus the complexity to test makes unit testing low value, so we don't do it.
+Wiring code is intended to be relatively, well, *boring*, and it's easy to read and code review. However, it is also difficult to test because of the IO dependencies. The easy of readability versus the complexity to test makes unit testing low value, so we don't do it.
+
+In Clean Code, Robert Martin quotes XXX's definition of _clean code_:
+
+> QUOTE about clean code reading like a story
+
+The wiring code fulfills this. The code reads like:
+
+```cpp
+class Wiring {
+function doStuff() {
+  auto a = input->readData();
+  auto decision = DecisionMaking::decide(a);
+  if (decision == Option1) {
+     writer->write(1);
+  } else
+     writer->write(2);
+  }
+}
+
+};
+
+```
+
+Each step is prescriptive and high-level. 
 
 ### Choosing Free Functions/Structs vs Classes
 
