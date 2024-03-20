@@ -428,6 +428,34 @@ The `m_outputter` dependency is only used in the wiring code. It would be simple
 
 ### Architectural Boundaries
 
+While DMI is primarily focused on creating entities, this cannot be done without considering how entities are grouped together via some commonality. I will refer to these as *components*. the lines between these components are the architectural boundaries. 
+
+when considering architectural boundaries, this begins to push beyond the design of a single entity. The principles and practices really start moving into the realm of architecture. personally, I have spent in decent bit of time the last few years learning Uncle Bob's clean architecture. considering he spends an entire book explaining the foundation and philosophy of this methodology, I won't attempt to repeat that here.
+
+#### Clean Architecture Summary
+
+ in summary, clean architecture separates code into four layers. The inner most layer is the entity layer, which he calls the Enterprise business rules. this is the logic that would be the same if you were doing this by hand or through some manual process instead of in software. The next layer is the application business rules. this is the core logic that is needed to automate the entity layer in software. The outermost layer is the interfaces layer. bees are things like your UI library, database communication, digital or analog inputs and outputs, messaging protocols, etc. these things are on the outside because they're the things that we want to depend on the least. I skipped the third layer, because this is the adapters layer that is necessary to translate from the interfaces layer to the application business rules. this could be translating data formats or adapting from different communication devices.
+
+and clean architecture, the inner layers do not know anything about the outer layers. The inner layer will often define an interface that is implemented in an outer layer. that is the way that an inner layer can access something in an outer layer, but it doesn't depend on anything outside of its own layer.
+
+inclean architecture, Uncle Bob gives numerous rules for deciding how to divide code into components. among these are the common closure principle TBD. 
+
+TODO decide if I should do some discussion of how to divide components.
+
+#### Arch Boundaries in DMI
+
+clean architecture is obviously just one methodology that could be used to divide things into components. The key for DMI is the influence of these boundaries on the design of our entities.
+
+as previously mentioned, my worst misapplication of OCP was making everything a class that inherited from an interface, even when I only had one concrete implementation. this didn't actually achieve my goal of making things resistant to change, because having too many interfaces meant that changes to the code were always impacting those interfaces as well.
+
+instead, our interface between components should be something we tried to keep more stable. this should abstract away details within a component so that changes to set component are unlikely to impact the other components that use it. 
+
+it is important to mention that an interface does not need to be an abstract base class or a class at all. this might be a struct and free functions just as well as a class. however, in following clean architecture, the goal is often to have things depend on ABCs instead of concrete implementations. in these cases, DMI advises to choose a class. these classes are often going to just be wiring code and still defer most of the work to public data and free functions as able in keeping with the rest of the design principles.
+
+**TODO** Example. maybe defer to a bigger example
+
+
+
 ## Unit Testing in DMI
 
 As previously mentioned, the original goal was to determine how to get more value from unit tests. The 'value' of testing is determined by the ratio of benefit versus cost:
