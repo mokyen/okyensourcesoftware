@@ -388,7 +388,13 @@ Each step is prescriptive and high-level.
 
 ### Choosing Free Functions/Structs vs Classes
 
-**TODO** TBD. Talk about invariance here.
+so it is all good and fine to say that we need to separate out our decision making, but how do we know what should be in a free function and variables/structs versus classes? Hi sweethearty mentioned briefly, in DMI we choose to default to three functions in publicly available data unless our data has an invariance or we are creating an architectural boundary. we will get to the latter soon, so let's hit the former.
+
+The concept of invariance became too big to include in this blog, so it's been broken out to its own [article] (invariance.md). 
+
+so within DMI, we are going to consider the data that we are designing and whether or not this has one of the three types of invariants. if it does, and we will place that data into a class. if not, then we put the data into a struct or just a variable and access it via free functions.
+
+**TODO** How much more needs to be discussed?
 
 ### Example Rewritten using DMI
 
