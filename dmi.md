@@ -28,9 +28,9 @@ I realize that 'entity layer' is a term in Robert Martin's *Clean Architecture* 
 
 In this blog, I am mostly using the term entities to refer to classes, structs, and free functions.
 
-## The Challenge with SRP and OCP
+## Challenges with SRP and OCP
 
-Earlier in my career, I read about the SOLID Principles, and I thought that I had unlocked the tactical guidance that would lead me to the quality code promised land. After more than a dozen years, I still find these to be philosophical concepts reather than practical and actionable strategies.
+Earlier in my career, I read about the SOLID Principles, and I thought that I had unlocked the tactical guidance that would lead me to the quality code promised land. After more than half a dozen years, I still find these to be philosophical concepts reather than practical and actionable strategies.
 
 ### SRP
 
@@ -44,29 +44,31 @@ In *Clean Architecture*, Uncle Bob refines this as:
 
 (Note that Martin states that the term 'module' here refers to "a cohesive set of functions and data structures", not to [C++20 modules](https://en.cppreference.com/w/cpp/language/modules).)
 
-On the surface, this seems like clear guidance. In application, I have always had difficulty deciding the granularity of a "reason" or identifying the "actor". Are the actors any other classes that use the class, or would they be only calls that come from a different component? Are the actors individuals/teams on the project? Are the requirements themselves an actor? How small of a reason do you need to arrive at an appropriately sized entity?
+On the surface, this seems like clear guidance. In application, I have always had difficulty deciding the granularity of a "reason" or identifying the "actor". Are the actors any other classes that use the class, or would they be only calls that come from a different component? Are the actors individuals/teams on the project? Are the requirements themselves an actor? How small of a 'reason to change' do you need to arrive at an appropriately sized entity?
 
 I can look at back at my code over the past six or seven years and see how my interpretation of SRP has changed, but I have always sought more concrete guidelines.
 
 ### OCP
 
-The Open-Closed Principle was introduced in 1998 by Bertrand Meyer. Uncle Bob paraphrased this as
+The Open-Closed Principle was introduced in 1998 by Bertrand Meyer. Uncle Bob paraphrased this as:
 
 > "Software entities (classes, modules, functions, etc.) should be open for extension, but closed for modification."
 
-Early in my career, this seemed like ludacris advise. How could I possible write something that doesn't need modification in the future?! I can't predict this! Do I just need to make mistakes for a decade or more until I gain the wisdom to know?
+Early in my career, this seemed like ludacris advise. How could I possible write something that doesn't need modification in the future?! I can't predict this! Do I just need to make mistakes for a decade or two until I gain the wisdom to know?
 
-The basis of OCP is that we should implement abstractions, often via an abstract base class (ABC), that abstract away private details about a specific implementation of the abstraction. The abstraction becomes an contract between the object and its callers.
+The basis of OCP is that we should implement abstractions, often via an abstract base class (ABC), that abstract away private details about a specific implementation. The abstraction becomes an contract between the object and its callers.
 
-So what did I do when I first learned this? Everything is a class, and every class inherits from an ABC! IEverything! All hail the mighty interface! Dependency injection solves it all! Of course, this meant that I had ABCs for classes that only ever had one implementation. Every caller took a smart pointer, and [composition relationships](https://www.ibm.com/docs/en/rsm/7.5.0?topic=diagrams-composition-association-relationships) were disallowed.
+So what did I do when I first learned this? Everything is a class, and every class inherits from an ABC! IEverything! All hail the mighty interface! Dependency injection solves it all!
 
-Was I really closed to modification when I was regularly changing my one or two implementation of an ABC and the ABC itself?
+Of course, this meant that I had ABCs for classes that only ever had one implementation. Every caller took a smart pointer, and [composition relationships](https://www.ibm.com/docs/en/rsm/7.5.0?topic=diagrams-composition-association-relationships) were disallowed.
+
+Was I really closed to modification when I was regularly changing my one or two implementation of an ABC and the ABC itself? If this was too much, and not using any ABCs was too little, how could I determine how to draw the boundaries that fulfilled OCP?
 
 ## Core Guidelines
 
 If we're going to look for advice on C++, the ultimate source is the [Cpp Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines).
 
-So what do the Guidelines have to say about designing entities?
+So what do the Guidelines have to say about designing entities? (Click on the arrows to expand and see the full text of each guideline.)
 
 <details>
   <summary>F.8: Prefer pure functions</summary>
@@ -286,11 +288,10 @@ The vision of DMI is this:
 > [!Important]
 > The most important parts of our code are the places where we decide what should happen. If these decisions are isolated, that critical code is easy to read, modify, extend, and test. If those key decisions are implemented correctly, then we can feel confident that our code is trying to do what we expect it to do.
 
-To achieve this, we have four key goals in DMI:
+To achieve this, we have three key guidelines in DMI:
 
 * Separate decision-making into pure free functions or small classes without external dependencies. The remaining code is IO or wiring.
-* Default to using publicly available data, such as structs or variables, and free functions instead of classes.
-* Choose free functions unless the data has invariance or is part of an architectural boundary.
+* Default to using free functions and publicly available data, such as structs or variables, instead of classes. Only use a class if the data has invariance or is part of an architectural boundary.
 * Unit test all decision-making code.
 
 Let's break down these key ideas.
@@ -298,6 +299,8 @@ Let's break down these key ideas.
 ### The three types of code
 
 In DMI, code is organized into three types of code: decision making, IO, and wiring.
+
+#### Code Example
 
 Let's look at a simple class example.
 
@@ -323,44 +326,45 @@ Let's look at a simple class example.
     };
 ```
 
-This class is fairly easy to read, but of course, it's only a few lines long. As it grows, it's easy to imagine that the `switch` statement could grow increasingly complex and harder to follow.
+**Readability** This class is fairly easy to read, but of course, it's only a few lines long. As it grows, it's easy to imagine that the `switch` statement could grow increasingly complex and harder to follow.
 
-This is also pretty simple to modify or extend at this scale. However, what if there are more considerations in determining what to send than just the `state`? I assume that most programmers have seen the twisted webs that can arise from switch statements. Being *closed to modification* seems a bit of a stretch.
+**Modifiability and Extensibility** This is also pretty simple to modify or extend at this scale. However, what if there are more considerations in determining what to send than just the `state`? I assume that most programmers have seen the twisted webs that can arise from switch statements. Being *closed to modification* seems a bit of a stretch.
 
-Testing this class is relatively difficult for such a simple class. I would have to create a spy, fake, or mock version of the `IOutputter` object that I can inject into this class. Therefore, `RequestHandler` tests would be broken if the interface of `IOutputter` changed.
+**Testability** Testing this class is relatively difficult for such a simple class. I would have to create a spy, fake, or mock version of the `IOutputter` object that I can inject into this class. Therefore, `RequestHandler` tests would be broken if the interface of `IOutputter` changed.
 
-In the past, I would have said this class fulfills SRP. It has a Single Responsibility - to process a request. However, the coupling between the `IOutputter` and the logic means that one *actor* could cause this to change.
+**SRP** In the past, I would have said this class fulfills SRP. It has a Single Responsibility - to process a request. However, the coupling between the `IOutputter` and the logic means that one *actor* could cause this to change.
 
-I would have also felt that the `IOutputter` class was fulfilling the OCP by being an ABC that is injected. **TODO Need to finish this. The question if this class is meeting OCP is really about whether or not IOutputter is in the same component.**
+**OCP** I would have also felt that the `IOutputter` class was fulfilling the OCP by being an ABC that is injected. **TODO Need to finish this. The question if this class is meeting OCP is really about whether or not IOutputter is in the same component.**
 
 The crux of the issue here is that all three types of code are combined into the processRequest function. DMI to the rescue!
 
 #### Decision Making
 
-Well, we're finally going to talk about the key term in this whole methodology. So what is decision making?
+Well, we're finally going to talk about the title term in this whole methodology. So what is decision making?
 
 Decision-making code is where the logic occurs within the code. In the `processRequest` function, the logic is just the `switch` that determines what will occur. This is where we determine **what** we will do.
 
-These decisions are isolated either into free functions or small classes (using some heuristics we'll discuss later). When classes are used, thos objects can only contain data members that can be created and owned via composition. Dependency injection is not permitted in decision making code, because anything injected tends to be IO.
-
 The decision making code tends to be focused on conditionals and often returns flags or enums that indicate what actions should be taken.
+
+These decisions are isolated either into free functions or small classes (using some heuristics we'll discuss later). When classes are used, those objects can only contain data members that can be created and owned via composition.  Dependency injection is not permitted in decision making code, because anything injected tends to be IO.
 
 #### IO
 
-Here, IO (inputs and outputs) does not refer to hardware or other layers of code. In DMI, IO is an entity that executes that  dependency that would need to be **TBD**. The IO is often the code that executes the action determined by the decision making. These objects either passed to the wiring code via dependency injection 
+Here, IO (inputs and outputs) does not refer to hardware or other layers of code. In DMI, IO either code that supplies input data to decision making or does something with the output of those decisions that crosses an architectural boundary.
 
-Features:
-
-* Not owned by the parent (composition)
-* Cannot be created without external dependencies
+In many cases, IO may be an injected dependency. This could be objects dealing with external code like the user interface, hardware, or databases. The IO could also will be a user-defined class from a different component. However, it may also be direct calls that are made within the wiring code. For instance, a wiring class could make `ioctl` calls to write to an I2C device, and this would be IO.
 
 In our example code, the calls to `m_outputter` are IO.
 
-IO code is 
-
 #### Wiring
 
-Wiring code is all the rest. It's the code that stitches together the decision-making and the IO. This code tends to be relatively, well, *boring*, and it's easy to read. However, it is also difficult to test because of the IO dependencies. The easy of readability vs the complexity to test makes unit testing low value, so we don't do it.
+Wiring code is all the rest. It's the code that stitches together the decision-making and the IO. This cn sometimes be a class that serves as an architectural boundary, but it could also be a free function with all parameters passed in.
+
+Wiring code is intended to be relatively, well, *boring*, and it's easy to read. However, it is also difficult to test because of the IO dependencies. The easy of readability versus the complexity to test makes unit testing low value, so we don't do it.
+
+### Choosing Free Functions/Structs vs Classes
+
+**TODO** TBD. Talk about invariance here.
 
 ### Example Rewritten using DMI
 
@@ -397,6 +401,8 @@ int decide(EState state) {
 The `switch` from before has moved to a pure free function. It has no external dependencies and is easy to read. The function has a single responsibility, so it is easy to maintain and extend. As a pure function, it is simple to test. That's our big four!
 
 The `m_outputter` dependency is only used in the wiring code. It would be simple to code review the wiring and feel comfortable that it's doing what you expect.
+
+### Architectural Boundaries
 
 ## Unit Testing in DMI
 
@@ -504,20 +510,9 @@ TEST(DecideTests, GivenState1_Return1) {
 
 The unit test above gives confidence that the software will perform the correct action while remaining simple and readable. The test evaluates one thing and only one thing.
 
-### DMI Rules
+### So how do we test the rest of the code?
 
-From these key takeaways, we have established the following guidelines as DMI when creating a software entity:
-
-* All decision making should be in free functions or in a 'small class' (i.e. one that encapsulates the invariance(s)).
-* Default to using publicly available data, such as structs or variables, and free functions instead of classes.
-* Consider the data that is core to the functionality of the entity. Identify any invariance(s) that exist.
-* Create a class to encapsulate any invariance.
-* All decision making should be unit tested
-* Unit tests should be preferred at the highest level possible that doesn't require IO. Other objects can be included in these tests so long as they do not have external dependencies that require mocking. However, it is at the developer's discretion to add in additional lower-level unit tests as needed for clarity or to evaluate edge cases.
-* Decision making should not have external dependencies. There shouldn't be any calls to outside objects to get or set data. Functions (free or member) should be as pure as possible.
-* Wiring code will typically not be unit test.
-* Integration tests should be written at the highest level reasonable to test the 'happy path(s)'. Any evaluation of error and edge cases should be handled through unit tests and code reviews.
-* Test doubles should be avoided whenever possible. If they are required, the priority order of desirability is inversely correlated with the general level of complexity. From most desirable to least should be: stub, dummy, spy, fake, mock.
+**TODO** Discuss automated integration tests, manually testing on hardware, and system verification tests.
 
 ## Is this just clean architecture or hexagonal architecture?
 
@@ -530,6 +525,12 @@ So isn't all of the decision-making in DMI in these inner layers? No, because de
 Consider a hardware driver, which would be in one of the outer layers. Some decisions are made based on the datasheet for that part, and there is value in testing those decisions.
 
 **TODO: NEED MORE DETAILED EXAMPLE**
+
+## DMI and the SOLID Principles
+
+**TODO** Let's revist SRP and OCP. 
+
+Discuss how DMI helps decide what is a SR and how breaking out the DM makes code fulfill OCP.
 
 ## Conclusion
 
@@ -549,3 +550,20 @@ TBD.
 OCP Article: <https://drive.google.com/file/d/0BwhCYaYDn8EgN2M5MTkwM2EtNWFkZC00ZTI3LWFjZTUtNTFhZGZiYmUzODc1/view?resourcekey=0-FsS837CGML599A_o5D-nAw>
 
 OCP: Uncle Bob talking about how you must get code in front of customers to figure out where to put abstractions: <https://youtu.be/zHiWqnTWsn4?si=lTqlvMmbNuRq14oE&t=4265>
+
+## TODO REMOVE - Notes and ideas
+
+### DMI Rules
+
+From these key takeaways, we have established the following guidelines as DMI when creating a software entity:
+
+* All decision making should be in free functions or in a 'small class' (i.e. one that encapsulates the invariance(s)).
+* Default to using publicly available data, such as structs or variables, and free functions instead of classes.
+* Consider the data that is core to the functionality of the entity. Identify any invariance(s) that exist.
+* Create a class to encapsulate any invariance.
+* All decision making should be unit tested
+* Unit tests should be preferred at the highest level possible that doesn't require IO. Other objects can be included in these tests so long as they do not have external dependencies that require mocking. However, it is at the developer's discretion to add in additional lower-level unit tests as needed for clarity or to evaluate edge cases.
+* Decision making should not have external dependencies. There shouldn't be any calls to outside objects to get or set data. Functions (free or member) should be as pure as possible.
+* Wiring code will typically not be unit test.
+* Integration tests should be written at the highest level reasonable to test the 'happy path(s)'. Any evaluation of error and edge cases should be handled through unit tests and code reviews.
+* Test doubles should be avoided whenever possible. If they are required, the priority order of desirability is inversely correlated with the general level of complexity. From most desirable to least should be: stub, dummy, spy, fake, mock.
