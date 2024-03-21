@@ -28,6 +28,10 @@ I realize that 'entity layer' is a term in Robert Martin's *Clean Architecture* 
 
 In this blog, I am mostly using the term entities to refer to classes, structs, and free functions.
 
+## Interfaces
+
+Another term that has numerous uses is 'interface'. While there isn't actually a construct called an interface in C++, the influence of Java's interface has made an abstract base class (ABC) take on the same name. However, this blog is talking about software design where the interface between two things may or may not be an ABC. Therefore, I when I'm referring to a pure virtual class, I'll use the term ABC. When I'm discussing a point where two systems, subjects, organizations, etc. meet and interact, I'll call it an interface.
+
 ## Challenges with SRP and OCP
 
 Earlier in my career, I read about the SOLID Principles, and I thought that I had unlocked the tactical guidance that would lead me to the quality code promised land. After more than half a dozen years, I still find these to be philosophical concepts reather than practical and actionable strategies.
@@ -58,7 +62,7 @@ Early in my career, this seemed like ludacris advise. How could I possible write
 
 The basis of OCP is that we should implement abstractions, often via an abstract base class (ABC), that abstract away private details about a specific implementation. The abstraction becomes an contract between the object and its callers.
 
-So what did I do when I first learned this? Everything is a class, and every class inherits from an ABC! IEverything! All hail the mighty interface! Dependency injection solves it all!
+So what did I do when I first learned this? Everything is a class, and every class inherits from an ABC! IEverything! All hail the mighty ABC! Dependency injection solves it all!
 
 Of course, this meant that I had ABCs for classes that only ever had one implementation. Every caller took a smart pointer, and [composition relationships](https://www.ibm.com/docs/en/rsm/7.5.0?topic=diagrams-composition-association-relationships) were disallowed.
 
@@ -291,7 +295,7 @@ The vision of DMI is this:
 To achieve this, we have three key guidelines in DMI:
 
 * Separate decision-making into pure free functions or small classes without external dependencies. The remaining code is IO or wiring.
-* Default to using free functions and publicly available data, such as structs or variables, instead of classes. Only use a class if the data has invariance or is part of an architectural boundary.
+* Default to using free functions and publicly-available data, such as structs or variables, instead of classes. Only use a class if the data has invariance or is part of an architectural boundary.
 * Unit test all decision-making code.
 
 Let's break down these key ideas.
@@ -388,13 +392,45 @@ Each step is prescriptive and high-level.
 
 ### Choosing Free Functions/Structs vs Classes
 
-so it is all good and fine to say that we need to separate out our decision making, but how do we know what should be in a free function and variables/structs versus classes? Hi sweethearty mentioned briefly, in DMI we choose to default to three functions in publicly available data unless our data has an invariance or we are creating an architectural boundary. we will get to the latter soon, so let's hit the former.
+So it is all good and fine to say that we need to separate out our decision making, but then how do we decide what should be in a free function and variables/structs versus classes? As mentioned previously mentioned briefly, in DMI we choose to default to free functions and publicly-available data unless our data has an invariance or is part of an architectural boundary. We will get to the latter soon, so let's hit the former.
 
-The concept of invariance became too big to include in this blog, so it's been broken out to its own [article] (invariance.md). 
+The concept of invariance became too big to include in this blog, so it's been broken out to its own [article] (invariance.md). The rest of this builds on that blog.
 
-so within DMI, we are going to consider the data that we are designing and whether or not this has one of the three types of invariants. if it does, and we will place that data into a class. if not, then we put the data into a struct or just a variable and access it via free functions.
+When designing an entity, we are going to consider if the data has any of the three types of invariants. If it does, and we will place that data into a class. If not, then we put the data into a struct or just a variable and use it in free functions.
 
-**TODO** How much more needs to be discussed?
+I have run into cases where I had a several pieces of data that only had an invariance between a few. 
+
+```cpp
+//Data needed for entity
+int idNumber;
+bool isDataReceived;
+std::chrono::milliseconds timeDataReceived; //Time received is updated whenever data is received. It shouldn't vary independent of isDataReceived
+bool isStatusHealthy;
+```
+
+Did all of the data need to go into a class because two variables had an invariance? The overhead of adding getters and setters for a bunch of items that could be public seemed unnecessary. Instead, the data with an invariance is moved into a small class, and that class is part of the struct used throughout the component.
+
+```cpp
+//Data needed for entity
+class DataReceivedStatus{
+public:
+  void setDataReceived() {
+    isDataReceived = true;
+    timeDataReceived = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch());
+  }
+private:
+  bool isDataReceived;
+  std::chrono::milliseconds timeDataReceived;
+};
+
+struct MyData {
+int idNumber;
+bool isStatusHealthy;
+DataReceivedStatus dataRecStatus;
+}
+```
+
+**TODO** How much more needs to be discussed? More examples?
 
 ### Example Rewritten using DMI
 
@@ -434,33 +470,33 @@ The `m_outputter` dependency is only used in the wiring code. It would be simple
 
 ### Architectural Boundaries
 
-While DMI is primarily focused on creating entities, this cannot be done without considering how entities are grouped together via some commonality. I will refer to these as *components*. the lines between these components are the architectural boundaries. 
+While DMI is primarily focused on creating entities, this cannot be done without considering how those entities  play into the larger system. Specifically, we must consider how they are grouped together via some commonality. I will refer to these groups as **components**. The divide between components are the architectural boundaries.
 
-when considering architectural boundaries, this begins to push beyond the design of a single entity. The principles and practices really start moving into the realm of architecture. personally, I have spent in decent bit of time the last few years learning Uncle Bob's clean architecture. considering he spends an entire book explaining the foundation and philosophy of this methodology, I won't attempt to repeat that here.
+The principles and practices for defining architectural boundaries begin to extend beyond the design of a single entity into what I consider the realm of architecture. Personally, I have spent in decent bit of time the last few years learning [Uncle Bob's Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html). Considering he spends an entire book explaining the foundation and philosophy of this methodology, I won't pretend that I can fully explain it within the scope of this blog.
 
-#### Clean Architecture Summary
+#### Clean Architecture Summarized
 
- in summary, clean architecture separates code into four layers. The inner most layer is the entity layer, which he calls the Enterprise business rules. this is the logic that would be the same if you were doing this by hand or through some manual process instead of in software. The next layer is the application business rules. this is the core logic that is needed to automate the entity layer in software. The outermost layer is the interfaces layer. bees are things like your UI library, database communication, digital or analog inputs and outputs, messaging protocols, etc. these things are on the outside because they're the things that we want to depend on the least. I skipped the third layer, because this is the adapters layer that is necessary to translate from the interfaces layer to the application business rules. this could be translating data formats or adapting from different communication devices.
+I will try to give a very brief overview. Clean Architecture separates code into four layers. The innermost is the Entity layer (not to be confused with our C++ entities, so I'm capitalizing "Entity" when referring to the layer), which Uncle Bob considers the enterprise business rules. This is the logic that would be the same if you were performing the task by hand or through some manual process instead of in software. The second layer is Use Cases. This code makes up the application business rules, which Martin refers to as the logic needed to automate the Entity layer in software. The outermost layer is the Frameworks and Drivers layer. Code in this layer includes things like your UI library, database communication, digital or analog inputs and outputs, messaging protocols, etc. These things are on the outside because they're the most likely to change and, therefore, the code on which we want to depend the least. I skipped the third layer, because this is the Interface Adapters layer whose role is to translate from the Framework and Drivers to the Use Cases. This could be translating data formats,  adapting from different communication devices, or combining multiple pieces of data.
 
-and clean architecture, the inner layers do not know anything about the outer layers. The inner layer will often define an interface that is implemented in an outer layer. that is the way that an inner layer can access something in an outer layer, but it doesn't depend on anything outside of its own layer.
+In Clean Architecture, the inner layers do not know anything about the outer layers. The inner layer will often define an abstract base class that is implemented in an outer layer. The inner layer can therefore use something defined in an outer layer without actually knowing the details of the concrete object because it only depends on the ABC.
 
-inclean architecture, Uncle Bob gives numerous rules for deciding how to divide code into components. among these are the common closure principle TBD. 
+Uncle Bob goes on to define numerous rules for deciding how to divide code into components, but I suggest reading [this blog for a summary](https://www.linkedin.com/pulse/software-architecture-component-cohesion-principles-thomas-saied).
 
 TODO decide if I should do some discussion of how to divide components.
 
-#### Arch Boundaries in DMI
+#### Architectural Boundaries in DMI
 
-clean architecture is obviously just one methodology that could be used to divide things into components. The key for DMI is the influence of these boundaries on the design of our entities.
+Clean Architecture is obviously just one methodology that could be used to divide code into components. The key for DMI is the influence of these boundaries on the design of our entities.
 
-as previously mentioned, my worst misapplication of OCP was making everything a class that inherited from an interface, even when I only had one concrete implementation. this didn't actually achieve my goal of making things resistant to change, because having too many interfaces meant that changes to the code were always impacting those interfaces as well.
+As previously mentioned, my worst misapplication of OCP was making everything a class that inherited from an ABC, even when I only intended to ever have one concrete implementation. This didn't actually achieve my goal of making things resistant to change, because having too many ABCs meant that changes to the code usually meant changing the ABC as well.
 
-instead, our interface between components should be something we tried to keep more stable. this should abstract away details within a component so that changes to set component are unlikely to impact the other components that use it. 
+Instead, our interface between components should be something we intend to keep more stable. This should abstract away details within a component so that internal changes to said component are unlikely to impact the other code that uses it. 
 
-it is important to mention that an interface does not need to be an abstract base class or a class at all. this might be a struct and free functions just as well as a class. however, in following clean architecture, the goal is often to have things depend on ABCs instead of concrete implementations. in these cases, DMI advises to choose a class. these classes are often going to just be wiring code and still defer most of the work to public data and free functions as able in keeping with the rest of the design principles.
+It is important to mention that an interface does not need to be an abstract base class or a class at all, particularly if this is within the same layer. The interface might instead be a struct and free functions. When a class is used, these objects are often going to just be wiring code and still defer most of the work to public data and free functions as able, in keeping with the rest of the DMI design principles.
+
+In keeping with Clean Architecture, if a component in an inner layer needs to use a component from an outer layer, an ABC should be defined in the inner layer and the concrete implementation should be in the outer layer. This is a case when a class must be used.
 
 **TODO** Example. maybe defer to a bigger example
-
-
 
 ## Unit Testing in DMI
 
@@ -616,7 +652,7 @@ OCP: Uncle Bob talking about how you must get code in front of customers to figu
 From these key takeaways, we have established the following guidelines as DMI when creating a software entity:
 
 * All decision making should be in free functions or in a 'small class' (i.e. one that encapsulates the invariance(s)).
-* Default to using publicly available data, such as structs or variables, and free functions instead of classes.
+* Default to using publicly-available data, such as structs or variables, and free functions instead of classes.
 * Consider the data that is core to the functionality of the entity. Identify any invariance(s) that exist.
 * Create a class to encapsulate any invariance.
 * All decision making should be unit tested
