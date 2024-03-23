@@ -1,4 +1,4 @@
-# Decision Making Isolation - Practical Guidance for SRP and OCP
+An entity is a value, object, reference, structured binding, function, enumerator, type, class member, bit-field, template, template specialization, namespace, or pack. Decision Making Isolation - Practical Guidance for SRP and OCP
 
 Writing code is relatively easy. Writing good code is hard.
 
@@ -20,9 +20,9 @@ Therefore, I propose that quality software is easy to *read, modify, extend, and
 
 ## Software Entities
 
-Any field that is as big and fast-developing as software is going to be plagued with overloaded terminology. When I say 'software entity' or 'entity', I am referring to this [definition from CppReference](https://en.cppreference.com/w/cpp/language/basic_concepts):
+Any field that is as big and fast-developing as software is going to be plagued with overloaded terminology. When I say 'software entity' or 'entity', I am referring to this [definition from the C++ Standard](https://timsong-cpp.github.io/cppwp/basic#def:entity):
 
-> The entities of a C++ program are values, objects, references, structured bindings(since C++17), functions, enumerators, types, class members, templates, template specializations, parameter packs(since C++11), and namespaces. Preprocessor macros are not C++ entities.
+> An entity is a value, object, reference, structured binding, function, enumerator, type, class member, bit-field, template, template specialization, namespace, or pack.
 
 I realize that 'entity layer' is a term in Robert Martin's *Clean Architecture* and 'entity' is a type of object in *Domain Driven Design*. It's still the best term I've found to date.
 
@@ -31,6 +31,11 @@ In this blog, I am mostly using the term entities to refer to classes, structs, 
 ## Interfaces
 
 Another term that has numerous uses is 'interface'. While there isn't actually a construct called an interface in C++, the influence of Java's interface has made an abstract base class (ABC) take on the same name. However, this blog is talking about software design where the interface between two things may or may not be an ABC. Therefore, I when I'm referring to a pure virtual class, I'll use the term ABC. When I'm discussing a point where two systems, subjects, organizations, etc. meet and interact, I'll call it an interface.
+
+The Core Guidelines also support this way of defining interfaces in the Note of [C.3: Represent the distinction between an interface and an implementation using a class]
+(https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-interface), the note reads:
+
+> Note Using a class in this way to represent the distinction between interface and implementation is of course not the only way. For example, we can use a set of declarations of freestanding functions in a namespace, an abstract base class, or a function template with concepts to represent an interface. The most important issue is to explicitly distinguish between an interface and its implementation “details.” Ideally, and typically, an interface is far more stable than its implementation(s).
 
 ## Challenges with SRP and OCP
 
@@ -163,7 +168,7 @@ Look for `struct`s with all data private and `class`es with public members.
 </details>
 
 > [!Important]  
-> **_Key Takeaway_** Classes should be used when an invariance exists. If no invariances exist, use a struct. This concept is so important that there is an [article dedicated just to invariance](invariance.md).
+> **_Key Takeaway_** Classes should be used when an invariance exists. If no invariances exist, use a struct. This concept is so important that I wrote a [separate article dedicated just to invariance](invariance.md).
 
 <details>
   <summary>C.4: Make a function a member only if it needs direct access to the representation of a class</summary>
@@ -239,7 +244,7 @@ The snag is that many member functions that do not need to touch data members di
 </details>
 
 > [!Important]  
-> **_Key Takeaway_** Only make a function a member if it needs access to private data or is part of an interface.
+> **_Key Takeaway_** Only make a function a member if it needs access to private data or is a virtual member of an ABC.
 
 <details>
   <summary>C.8: Use `class` rather than `struct` if any member is non-public</summary>
@@ -294,7 +299,7 @@ The vision of DMI is this:
 
 To achieve this, we have three key guidelines in DMI:
 
-* Separate decision-making into pure free functions or small classes without external dependencies. The remaining code is IO or wiring.
+* Separate decision-making into pure free functions or small classes without external dependencies.
 * Default to using free functions and publicly-available data, such as structs or variables, instead of classes. Only use a class if the data has invariance or is part of an architectural boundary.
 * Unit test all decision-making code.
 
@@ -394,7 +399,7 @@ Each step is prescriptive and high-level.
 
 So it is all good and fine to say that we need to separate out our decision making, but then how do we decide what should be in a free function and variables/structs versus classes? As mentioned previously mentioned briefly, in DMI we choose to default to free functions and publicly-available data unless our data has an invariance or is part of an architectural boundary. We will get to the latter soon, so let's hit the former.
 
-The concept of invariance became too big to include in this blog, so it's been broken out to its own [article] (invariance.md). The rest of this builds on that blog.
+The concept of invariance became too big to include in this blog, so I have broken out to its own [article](invariance.md). The rest of this builds on that blog.
 
 When designing an entity, we are going to consider if the data has any of the three types of invariants. If it does, and we will place that data into a class. If not, then we put the data into a struct or just a variable and use it in free functions.
 
@@ -431,6 +436,17 @@ DataReceivedStatus dataRecStatus;
 ```
 
 **TODO** How much more needs to be discussed? More examples?
+
+#### Why Free Functions?
+
+There are several great resources out there that tout the benefits of free functions. I don't think I can state them better, so I'll just link them here:
+
+* [CppCon 2017: Klaus Iglberger “Free Your Functions!”](https://www.youtube.com/watch?v=WLDT1lDOsb4)
+  * This video changed my whole view of free functions!
+* [How Non-Member Functions Improve Encapsulation (2000), Scott Meyers](https://drdobbs.com/cpp/how-non-member-functions-improve-encapsu/184401197?pgno=1)
+  * This article is a bit old, but it flips some of the ideas many have against free functions versus object oriented programming.
+* (Monoliths "Unstrung", Herb Sutter)[http://www.gotw.ca/gotw/084.htm]
+  * In this article, Sutter rewrote the C++03 version of the std::string class that had 103 member functions into 32 members functions and 71 free functions.
 
 ### Example Rewritten using DMI
 
@@ -473,6 +489,7 @@ The `m_outputter` dependency is only used in the wiring code. It would be simple
 While DMI is primarily focused on creating entities, this cannot be done without considering how those entities  play into the larger system. Specifically, we must consider how they are grouped together via some commonality. I will refer to these groups as **components**. The divide between components are the architectural boundaries.
 
 The principles and practices for defining architectural boundaries begin to extend beyond the design of a single entity into what I consider the realm of architecture. Personally, I have spent in decent bit of time the last few years learning [Uncle Bob's Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html). Considering he spends an entire book explaining the foundation and philosophy of this methodology, I won't pretend that I can fully explain it within the scope of this blog.
+
 
 #### Clean Architecture Summarized
 
