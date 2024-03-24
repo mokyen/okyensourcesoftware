@@ -244,7 +244,7 @@ The snag is that many member functions that do not need to touch data members di
 </details>
 
 > [!Important]  
-> **_Key Takeaway_** Only make a function a member if it needs access to private data or is a virtual member of an ABC.
+> **_Key Takeaway_** Only make a function a member if it needs access to private data or is a virtual member of an ABC. (Note that this Guideline references the virtual functions in one of the 'Enforcement' clauses.)
 
 <details>
   <summary>C.8: Use `class` rather than `struct` if any member is non-public</summary>
@@ -341,7 +341,7 @@ Let's look at a simple class example.
 
 **Testability** Testing this class is relatively difficult for such a simple class. I would have to create a spy, fake, or mock version of the `IOutputter` object that I can inject into this class. Therefore, `RequestHandler` tests would be broken if the interface of `IOutputter` changed.
 
-**SRP** In the past, I would have said this class fulfills SRP. It has a Single Responsibility - to process a request. However, the coupling between the `IOutputter` and the logic means that one *actor* could cause this to change.
+**SRP** In the past, I would have said this class fulfills SRP. It has a Single Responsibility - to process a request. However, the coupling between the `IOutputter` and the logic means that more than one *actor* could cause this to change.
 
 **OCP** I would have also felt that the `IOutputter` class was fulfilling the OCP by being an ABC that is injected. **TODO Need to finish this. The question if this class is meeting OCP is really about whether or not IOutputter is in the same component.**
 
