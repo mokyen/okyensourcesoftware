@@ -1,4 +1,4 @@
-An entity is a value, object, reference, structured binding, function, enumerator, type, class member, bit-field, template, template specialization, namespace, or pack. Decision Making Isolation - Practical Guidance for SRP and OCP
+# Decision Making Isolation - Practical Guidance for SRP and OCP
 
 Writing code is relatively easy. Writing good code is hard.
 
@@ -14,9 +14,9 @@ Klaus Iglberger gave this definition:
 
 "High-quality software is easy to change, easy to extend, and easy to test." (Iglberger, 2022)
 
-I would also add 'readability' to this list. It could be argued that readability is implied in the ability to change and extend, but I contend that other developers will also need to be able to read your code to understand it even if they are not modifying it in any way, such as when they use your API.
+I think many would say that 'readability' is implied by "easy to change" and "easy to extend." However, I prefer to emphasize it a bit more by adding this to Klaus's list. I contend that other developers (and possibly testers) will also need to be able to read your code to understand it even if they are not modifying it in any way. Moreover. they might use it as a model for creating a similar feature.
 
-Therefore, I propose that quality software is easy to *read, modify, extend, and test.*
+Therefore, I propose that my definition of quality software is easy to *read, modify, extend, and test.*
 
 ## Software Entities
 
@@ -72,6 +72,18 @@ So what did I do when I first learned this? Everything is a class, and every cla
 Of course, this meant that I had ABCs for classes that only ever had one implementation. Every caller took a smart pointer, and [composition relationships](https://www.ibm.com/docs/en/rsm/7.5.0?topic=diagrams-composition-association-relationships) were disallowed.
 
 Was I really closed to modification when I was regularly changing my one or two implementation of an ABC and the ABC itself? If this was too much, and not using any ABCs was too little, how could I determine how to draw the boundaries that fulfilled OCP?
+
+## Motivation for Creating Something New
+
+I don't have a classical software background. I studied mechanical engineering in undergrad and grad school, and I became interested in robotics. After a few jobs at robotics companies as a controls or systems engineer who wrote code, I finally decided to commit to being a software engineer. I found myself searching for clear, practical guidance for creating quality software.
+
+What I would consider "quality" has changed drastically over the past decade. I've had several overhauls to my style, from C-style C++ code without any polymorphism to 100% OOP to my current focus where I'm emphasizing more multi-paradigm with an emphasis on structured programming (more on that to come).
+
+What I have found is that clear guidelines on how to design entities is lacking, and this often leads to a situation where developers try to follow some precedent either 100% of the time, not at all, or some arbitrary amount in the middle. This is absolutely the case in unit testing, where some code bases use no unit testing, others use mocking frameworks to test every bit of code, and most land some place in the middle but are inconsistent in 'how' and 'why' tests are written. The same shows up with OOP. Some will use C++ to write something that looks mostly like C, while others make everything a class while others. Then there's the template metaprogramming guys...
+
+The longer I works as developer, the more I find that the best design practices are the ones that emphasize understanding and utilizing numerous paradigms and choosing the best solution for a problem. For example, there are places where functional or meta programming solves problems significantly simpler than OOP, but the same application will have places where OOP is ideal.
+
+So what problem am I really trying to solve with DMI? I want to provide concise, actionable principles for deciding how to design your entities and creating unit tests that provide the most value.
 
 ## Core Guidelines
 
@@ -343,7 +355,7 @@ Let's look at a simple class example.
 
 **SRP** In the past, I would have said this class fulfills SRP. It has a Single Responsibility - to process a request. However, the coupling between the `IOutputter` and the logic means that more than one *actor* could cause this to change.
 
-**OCP** I would have also felt that the `IOutputter` class was fulfilling the OCP by being an ABC that is injected. **TODO Need to finish this. The question if this class is meeting OCP is really about whether or not IOutputter is in the same component.**
+**OCP** Additionally, I probably would said the `IOutputter` class was fulfilling the OCP by being an injected ABC. I probably would have called out the switch statement as a violation, but my solution likely would have been to move to use polymorphism to avoid the switch and utilize a mocking framework to test the `RequestHandler`'s functionality.
 
 The crux of the issue here is that all three types of code are combined into the processRequest function. DMI to the rescue!
 
@@ -507,7 +519,7 @@ Clean Architecture is obviously just one methodology that could be used to divid
 
 As previously mentioned, my worst misapplication of OCP was making everything a class that inherited from an ABC, even when I only intended to ever have one concrete implementation. This didn't actually achieve my goal of making things resistant to change, because having too many ABCs meant that changes to the code usually meant changing the ABC as well.
 
-Instead, our interface between components should be something we intend to keep more stable. This should abstract away details within a component so that internal changes to said component are unlikely to impact the other code that uses it. 
+Instead, our interface between components should be something we intend to keep more stable. This should abstract away details within a component so that internal changes to said component are unlikely to impact the other code that uses it.
 
 It is important to mention that an interface does not need to be an abstract base class or a class at all, particularly if this is within the same layer. The interface might instead be a struct and free functions. When a class is used, these objects are often going to just be wiring code and still defer most of the work to public data and free functions as able, in keeping with the rest of the DMI design principles.
 
@@ -637,9 +649,42 @@ Consider a hardware driver, which would be in one of the outer layers. Some deci
 
 **TODO: NEED MORE DETAILED EXAMPLE**
 
+## A Design Process for Implementing DMI
+
+For now, DMI is confined to the principles previously stated for designing entities and doesn't extend as far as choosing the component boundaries. However, the picture feels a bit incomplete for how this would be used without a bigger example. So let's walk through my (current and likely-to-evolve-in-the-future) design process.
+
+### Michael's Design Process
+
+When I go to implement a feature, my ideal process looks something like this:
+
+1. Define or review the requirements
+2. Define or review product use cases
+   * These are created based on what the end user needs the system to do
+   * These guide defining the components in the entity layer
+3. Define or review the software use cases
+   * These are the things the *software* needs to do as an automated system to meet the product use cases
+4. Define the actors who will cause the feature to change
+   * This includes the requirements
+   * May include other teams, specific features like a communication protocol, user interface designers, marketing, etc.
+5. Define the core data model
+   * This is often the data that a person would need to use or know if they were performing the functionality of this feature by hand
+   * This may be several data models across the entity layer and use case layer
+6. Define the invariance between pieces of the data
+7. Define the use case components
+   * Consider the actors that will impact each use case
+   * Use this to rbeak the software into components such that each component would only change due to one actor
+8. Define the pieces in the drivers and framework layer
+9. Use test driven development to implement each component
+   * Isolating decisions is often something that happens during the *refactor* step of the TDD process
+10. Iterate by going back to any previous step above and working downward
+
+### Design Process Example
+
+**TODO**
+
 ## DMI and the SOLID Principles
 
-**TODO** Let's revist SRP and OCP. 
+**TODO** Let's revist SRP and OCP.
 
 Discuss how DMI helps decide what is a SR and how breaking out the DM makes code fulfill OCP.
 
