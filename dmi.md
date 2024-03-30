@@ -455,10 +455,13 @@ There are several great resources out there that tout the benefits of free funct
 
 * [CppCon 2017: Klaus Iglberger “Free Your Functions!”](https://www.youtube.com/watch?v=WLDT1lDOsb4)
   * This video changed my whole view of free functions!
-* [How Non-Member Functions Improve Encapsulation (2000), Scott Meyers](https://drdobbs.com/cpp/how-non-member-functions-improve-encapsu/184401197?pgno=1)
+  * Klaus discusses how free functions improve encapsulation, abstraction/polymorphism, cohesion, flexibility/extensibility, reuse/generality, testability, and performance.
+* [Scott Meyers (2000), "How Non-Member Functions Improve Encapsulation"](https://drdobbs.com/cpp/how-non-member-functions-improve-encapsu/184401197?pgno=1)
   * This article is a bit old, but it flips some of the ideas many have against free functions versus object oriented programming.
-* (Monoliths "Unstrung", Herb Sutter)[http://www.gotw.ca/gotw/084.htm]
-  * In this article, Sutter rewrote the C++03 version of the std::string class that had 103 member functions into 32 members functions and 71 free functions.
+* [Herb Sutter (n.d.), "Monoliths 'Unstrung'", ](http://www.gotw.ca/gotw/084.htm)
+  * In this article from around 2002, Sutter rewrote the C++98 version of the std::string class that had 103 member functions into 32 members functions and 71 free functions.
+* [Scott Meyers (2005), "Effective C++ (3rd ed.)", Item 23, p.98.](https://www.amazon.com/Effective-Specific-Improve-Programs-Designs/dp/0321334876)
+  * "Prefer non-member non-friend functions to member functions."
 
 ### Example Rewritten using DMI
 
@@ -702,6 +705,7 @@ TBD.
 * C++ Core Guidelines. (2023, October 12). Retrieved January 2, 2024, from <https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines>
 * Iglberger, Klaus. (2022). Breaking Dependencies: The Path to High-Quality Software [PowerPoint slides]. <https://meetingcpp.com/mcpp/slides/2022/Breaking%20Dependencies8158.pdf>.
 * Object Oriented Software Construction, Bertrand Meyer, Prentice Hall, 1988, p23
+* Meyers, S. (2005). Effective C++ (3rd ed.). Pearson Education.
 
 OCP Article: <https://drive.google.com/file/d/0BwhCYaYDn8EgN2M5MTkwM2EtNWFkZC00ZTI3LWFjZTUtNTFhZGZiYmUzODc1/view?resourcekey=0-FsS837CGML599A_o5D-nAw>
 
