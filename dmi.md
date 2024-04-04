@@ -32,8 +32,7 @@ In this blog, I am mostly using the term entities to refer to classes, structs, 
 
 Another term that has numerous uses is 'interface'. While there isn't actually a construct called an interface in C++, the influence of Java's interface has made an abstract base class (ABC) take on the same name. However, this blog is talking about software design where the interface between two things may or may not be an ABC. Therefore, I when I'm referring to a pure virtual class, I'll use the term ABC. When I'm discussing a point where two systems, subjects, organizations, etc. meet and interact, I'll call it an interface.
 
-The Core Guidelines also support this way of defining interfaces in the Note of [C.3: Represent the distinction between an interface and an implementation using a class]
-(https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-interface), the note reads:
+The Core Guidelines also support this way of defining interfaces in the Note of [C.3: Represent the distinction between an interface and an implementation using a class](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-interface), the note reads:
 
 > Note Using a class in this way to represent the distinction between interface and implementation is of course not the only way. For example, we can use a set of declarations of freestanding functions in a namespace, an abstract base class, or a function template with concepts to represent an interface. The most important issue is to explicitly distinguish between an interface and its implementation “details.” Ideally, and typically, an interface is far more stable than its implementation(s).
 
