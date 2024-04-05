@@ -535,7 +535,7 @@ As previously mentioned, the original goal was to determine how to get more valu
 
 > | Benefit | Cost |
 > | ----------- | ----------- |
-> | <ul><li>Confidence in the functionality of code</li><li>Ability to prevent regressions | Time and effort in creating and maintaining unit tests</li></ul> |
+> | <ul><li>Confidence in the functionality of code</li><li>Ability to prevent regressions | <ul><li>Time and effort in creating and maintaining unit tests</li></ul>Time to run unit tests |
 
 {{{CONSIDER IF THIS SHOULD BE THE "DELIVER FUNCTIONAL CODE MORE QUICKLY" DEFINITION INSTEAD}}}
 
@@ -674,7 +674,7 @@ When I go to implement a feature, my ideal process looks something like this:
 6. Define the invariance between pieces of the data
 7. Define the use case components
    * Consider the actors that will impact each use case
-   * Use this to rbeak the software into components such that each component would only change due to one actor
+   * Use this to break the software into components such that each component would only change due to one actor
 8. Define the pieces in the drivers and framework layer
 9. Use test driven development to implement each component
    * Isolating decisions is often something that happens during the *refactor* step of the TDD process
