@@ -255,7 +255,7 @@ The snag is that many member functions that do not need to touch data members di
 </details>
 
 > [!Important]  
-> **_Key Takeaway_** Only make a function a member if it needs access to private data or is a virtual member of an ABC. (Note that this Guideline references the virtual functions in one of the 'Enforcement' clauses.)
+> **_Key Takeaway_** Only make a function a member if it needs access to private data or is a virtual member of an ABC. (Note that this Guideline references the virtual functions in one of the 'Exception' clauses.)
 
 <details>
   <summary>C.8: Use `class` rather than `struct` if any member is non-public</summary>
@@ -314,15 +314,11 @@ To achieve this, we have three key guidelines in DMI:
 * Default to using free functions and publicly-available data, such as structs or variables, instead of classes. Only use a class if the data has invariance or is part of an architectural boundary.
 * Unit test all decision-making code.
 
-Let's break down these key ideas.
+Let's break down these key ideas. Let's start with a basic code example.
 
-### The three types of code
+### A Simple Code Example
 
-In DMI, code is organized into three types of code: decision making, IO, and wiring.
-
-#### Code Example
-
-Let's look at a simple class example.
+Let's consider this class.
 
 ```cpp
     class RequestHandler
@@ -358,13 +354,17 @@ Let's look at a simple class example.
 
 The crux of the issue here is that all three types of code are combined into the processRequest function. DMI to the rescue!
 
+### The three types of code
+
+In DMI, code is organized into three types of code: decision making, IO, and wiring.
+
 #### Decision Making
 
 Well, we're finally going to talk about the title term in this whole methodology. So what is decision making?
 
 Decision-making code is where the logic occurs within the code. In the `processRequest` function, the logic is just the `switch` that determines what will occur. This is where we determine **what** we will do.
 
-The decision making code tends to be focused on conditionals and often returns flags or enums that indicate what actions should be taken.
+The decision making code tends to be focused on conditionals, non-trivial computations, or branching structures (if, switch, etc., potentially for loops) and often returns flags or enums that indicate what actions should be taken.
 
 These decisions are isolated either into free functions or small classes (using some heuristics we'll discuss later). When classes are used, those objects can only contain data members that can be created and owned via composition.  Dependency injection is not permitted in decision making code, because anything injected tends to be IO.
 
@@ -445,6 +445,8 @@ bool isStatusHealthy;
 DataReceivedStatus dataRecStatus;
 }
 ```
+
+There is one notable semi-exception to this concept -- ABCs. Since there is no data in an ABC, by definition it cannot enforce an invariance. As we'll soon discuss, I contend that among the most common places where you need an ABC is an architectural boundary. However, the other place the need for an ABC would arise is if the child class that inherits from the ABC has an invariance. It may mean that a different child classes that also inherit from that ABC may not have an invariance but needs to follow the interface. This is alignes with Cpp Core Guideline [I.25 Prefer empty abstract classes as interfaces to class hierarchies](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#i25-prefer-empty-abstract-classes-as-interfaces-to-class-hierarchies).
 
 **TODO** How much more needs to be discussed? More examples?
 
