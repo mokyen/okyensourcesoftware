@@ -312,7 +312,7 @@ To achieve this, we have three key guidelines in DMI:
 
 * Separate decision-making into pure free functions or small classes without external dependencies.
 * Default to using free functions and publicly-available data, such as structs or variables, instead of classes. Only use a class if the data has invariance or is part of an architectural boundary.
-* Unit test all decision-making code.
+* Unit test all decision-making code thoroughly.
 
 Let's break down these key ideas. Let's start with a basic code example.
 
@@ -378,20 +378,20 @@ In our example code, the calls to `m_outputter` are IO.
 
 #### Wiring
 
-Wiring code is all the rest. It's the code that stitches together the decision-making and the IO. This cn sometimes be a class that serves as an architectural boundary, but it could also be a free function with all parameters passed in.
+Wiring code is what stitches together the decision-making and the IO. This can sometimes be a class that serves as an architectural boundary, but it could also be a free function with all parameters passed in.
 
-Wiring code is intended to be relatively, well, *boring*, and it's easy to read and code review. However, it is also difficult to test because of the IO dependencies. The easy of readability versus the complexity to test makes unit testing low value, so we don't do it.
+Wiring code is intended to be relatively, well, *boring*, and it's easy to read and code review. However, it is also often difficult to test because of the IO dependencies. The easy of readability versus the complexity to test makes unit testing low value, so we don't do it.
 
-In Clean Code, Robert Martin quotes XXX's definition of _clean code_:
+In Clean Code, Robert Martin quotes Grady Booch's definition of _clean code_:
 
-> QUOTE about clean code reading like a story
+> Clean code is simple and direct. Clean code reads like well-written prose. Clean code never obscures the designer's intent but rather is full of crisp abstractions and straightforward lines of control.
 
-The wiring code fulfills this. The code reads like:
+The wiring code fulfills this. It should be at a higher level of abstraction where a reader follows along 'like well-written prose.' The code reads something like:
 
 ```cpp
 class Wiring {
 function doStuff() {
-  auto a = input->readData();
+  auto a = input->gatherData();
   auto decision = DecisionMaking::decide(a);
   if (decision == Option1) {
      writer->write(1);
@@ -399,12 +399,10 @@ function doStuff() {
      writer->write(2);
   }
 }
-
 };
-
 ```
 
-Each step is prescriptive and high-level. 
+Each step is prescriptive and appropriately high-level.
 
 ### Choosing Free Functions/Structs vs Classes
 
