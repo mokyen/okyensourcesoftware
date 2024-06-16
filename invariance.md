@@ -22,7 +22,7 @@ In [C.2](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c2-use-cla
 >
 > If all data members can vary independently of each other, no invariant is possible.
 
-I've read this explanation over and over, but it still never quite made sense in those terms. Let's propose an alternative definition of invariance:
+I've read this explanation over and over, but it still never quite made sense in those terms. Let's reword and expand this definition of invariance:
 
 > [!Important]  
 > An invariant is a logical condition for the members of an object that can be expected to be true from the time the constructor exits to the time the destructor is called. These logical conditions fall into three categories.
@@ -114,6 +114,30 @@ cppreference.com [defines Resource Allocation Is Initialization](https://en.cppr
 
 Since the goal of RAII is to insulate the resource from direct manipulation, this necessitates that we use a class instead of a struct based on our previous discussion.
 
+There are plenty of resources discussing RAII, but here is classic example of wrapping a file handle:
+
+```cpp
+class FileHandler {
+public:
+    FileHandler(const char* filename) {
+        //throws an exception on failure
+        m_file.open(filename);
+    }
+    
+    ~FileHandler() {
+        m_file.close();
+    }
+    
+    std::string readLine() {
+        return m_file.readLine();
+    }
+    
+private:
+    File m_file;
+};
+```
+
+
 *On a side note, I really prefer the term CADRe, or Constructor Acquires-Destructor Releases, as a better name for remembering RAII. It is just easier to remember the meaning. However, it's hard to change a term that might have been around [longer than the Super Nintendo](https://www.stroustrup.com/bs_faq.html#:~:text=I%20held%20back%20the%20introduction%20of%20exceptions%20into%20C%2B%2B%20for%20half%20a%20year%20until%20I%20discovered%20RAII%20(1988).%20RAII%20is%20an%20integral%20and%20necessary%20part%20of%20the%20C%2B%2B%20exception%20mechanism) (or at least [older than the Nintendo 64](https://www.cardinalpeak.com/blog/raii-introduction), depending on your source).*
 
 ## Property of a Data Member that Must Be True
@@ -139,7 +163,21 @@ private:
 };
 ```
 
-Here, the invariance is a condition between a member and the constant *2*. The most common case of this type of invariance is comparisons to a constant or literal, like in this example. However, a similar case occurs when the invariance is a mathematical algorithm that must be applied to a member. For instance, a class could exist that stores an angle in radians but must convert the value to be in the range -2π to 2π. This is more involved than simply comparing to a constant, but it's a similar logical assertion that necessitates using a class.
+Here, the invariance is a condition between a member and the constant *2*. 
+
+The most common case of this type of invariance is comparisons to a constant or literal, like in this example. However, a similar case occurs when the invariance is a mathematical calculation that must be applied to a member. For instance, the class below stores an angle in radians but must convert the value to be in the range -2π to 2π. This is more involved than simply comparing to a constant, but it's a similar logical assertion that necessitates using a class.
+
+```cpp
+class UnitCircleAngle {
+public:
+    void setAngleFromDegrees(float degrees) {
+        auto boundedAngleDegrees{std::fmodf(degrees, 360)};
+        m_angle = boundedAngleDegrees * M_PI / 180;
+    }
+private:
+    float m_angle;
+}
+```
 
 ## 'Invariant' Doesn't Mean Immutability
 
