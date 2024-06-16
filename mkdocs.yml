@@ -59,7 +59,7 @@ nav:
     - 'about.md'
     - 'bio.md'
   - Blog:
-    - 'Invariance.md'
+    - 'invariance.md'
 
 copyright: |
   &copy; 2024 <a href="https://github.com/mokyen"  target="_blank" rel="noopener">Michael Okyen</a>
