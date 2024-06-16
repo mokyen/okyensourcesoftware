@@ -112,7 +112,8 @@ Not possible.
 
 </details>
 
-> [!Important]  
+> :sparkles: **KEY POINT** :sparkles:
+>
 > **_Key Takeaway_** Free functions should be the default option for functionality (not classes).
 
 <details>
@@ -178,7 +179,8 @@ Look for `struct`s with all data private and `class`es with public members.
 
 </details>
 
-> [!Important]  
+> :sparkles: **KEY POINT** :sparkles:
+>
 > **_Key Takeaway_** Classes should be used when an invariance exists. If no invariances exist, use a struct. This concept is so important that I wrote a [separate article dedicated just to invariance](invariance.md).
 
 <details>
@@ -254,7 +256,8 @@ The snag is that many member functions that do not need to touch data members di
 
 </details>
 
-> [!Important]  
+> :sparkles: **KEY POINT** :sparkles:
+>
 > **_Key Takeaway_** Only make a function a member if it needs access to private data or is a virtual member of an ABC. (Note that this Guideline references the virtual functions in one of the 'Exception' clauses.)
 
 <details>
@@ -298,7 +301,8 @@ Flag classes declared with `struct` if there is a `private` or `protected` membe
 
 </details>
 
-> [!Important]  
+> :sparkles: **KEY POINT** :sparkles:
+>
 > **_Key Takeaway_** Use a struct when all data is public, and use a class when there is any private data.
 
 ## Decision Making Isolation
