@@ -2,4 +2,8 @@
 
 **Welcome to OkyenSourceSoftware.com!**
 
-This site is currently under development. Please come back soon!
+Thanks for stopping by my little corner of the web!
+
+## Latest Blog
+
+[What is Invariance?](invariance.md) - 2024/06/16
