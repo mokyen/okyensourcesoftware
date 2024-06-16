@@ -1,0 +1,5 @@
+mkdocs
+mkdocs-material
+"mkdocs-material[imaging]"
+pipwin
+# Then call python -m pipwin install cairocffi
