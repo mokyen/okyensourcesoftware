@@ -27,7 +27,7 @@ In [C.2](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c2-use-cla
 
 I've read this explanation over and over, but it still never quite made sense in those terms. Let's reword and expand this definition of invariance:
 
-> :exclamation: **IMPORTANT** :exclamation:  
+> :exclamation: **KEY POINT** :exclamation:  
 > An invariant is a logical condition for the members of an object that can be expected to be true from the time the constructor exits to the time the destructor is called. These logical conditions fall into three categories.
 >
 > * A relationship between at least two data members such that all members cannot vary independently.
