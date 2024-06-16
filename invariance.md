@@ -7,10 +7,13 @@ The term 'invariant' is one of the linchpins of Decision Making Isolation. It is
 Before we discuss invariance, let's take a look at what else the [Cpp Core Guidelines](https://isocpp.github.io/CppCoreGuidelines) say about the difference between a class and struct.
 
 * [C.8](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c8-use-class-rather-than-struct-if-any-member-is-non-public): Use `class` rather than `struct` if any member is non-public
+Reason: Readability. To make it clear that something is being hidden/abstracted. This is a useful *convention*.
 
-While `class` and `struct` are relatively equivalent in C++, the Guidelines set the convention that structs are intended to only contain public members. Because all public data members can be directly modified, I believe it can be inferred that structs also shouldn't have public member functions. In the [Decision Making Isolation (DMI) blog](dmi.md), we'll go more into the preference for free functions. For now, we'll assume that structs only have public data members and no functions.
+While `class` and `struct` are relatively equivalent in C++, the Guidelines set the *convention* that structs are intended to only contain public members. Because all public data members can be directly modified, I believe it can be inferred that structs also shouldn't have public member functions. In the forthcoming [Decision Making Isolation (DMI) blog](dmi.md), we'll go more into the preference for free functions. For now, we'll assume that structs only have public data members and no functions.
 
 * [C.2](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c2-use-class-if-the-class-has-an-invariant-use-struct-if-the-data-members-can-vary-independently): Use `class` if the class has an invariant; use `struct` if the data members can vary independently.
+Reason:
+Readability. Ease of comprehension. The use of class alerts the programmer to the need for an invariant. This is a useful *convention*.
 
 The Guidelines also state the guidance that a class should be used when the data has an invariant. This guidance seems relatively clear-cut for deciding which type of object to use. However, the concept of *invariance* isn't trivial!
 
@@ -48,18 +51,6 @@ Ohm's law dictates that if you vary any one of the parameters, at least one othe
 ```cpp
 class SimpleCiruit {
 public:
-  SimpleCiruit(Voltage volts, Current amperage)
-      : m_volts(volts), m_amperage(current) {
-    m_resistance = volts / current;
-  }
-  SimpleCiruit(Current amperage, Resistance resistance)
-      : m_amperage(current), m_resistance(resistance) {
-    m_volts = current * resistance;
-  }
-  SimpleCiruit(Voltage volts, Resistance resistance)
-      : m_volts(volts), m_resistance(resistance) {
-    m_amperage = volts / resistance;
-  }
   void setResistanceFixedVoltage(Resistance resistance) {
     m_resistance = resistance;
     m_amperage = m_volts / m_resistance;
@@ -251,10 +242,10 @@ With these simple examples in mind, here is what the Guidelines say about when t
 
 ## But what about when my invariants or data change?
 
-One potential critique of these guidelines for choosing a struct versus a class is that public member functions provide an interface that isolates the private data members from the users of that object. If I have a class with a getter, I can change the type of that private data without modifying calls to the getter as long as the return type remains the same. If a struct is used and the data members are manipulated directly, any change to the types of those data members impacts the struct's users. Additionally, if a struct is used and we need to introduce an invariance (which would necessitate private data and therefore a switch from a struct to a class), then we'll also have to modify all the users. Using a class is less likely to cause the callers of its member functions to change.
+One potential critique of this guidance for choosing a struct versus a class is that public member functions provide an interface that isolates the private data members from the users of that object. If I have a class with a getter, I can change the type of that private data without modifying calls to the getter as long as the return type remains the same. If a struct is used and the data members are manipulated directly, any change to the types of those data members impacts the struct's users. Additionally, if a struct is used and we need to introduce an invariance (which would necessitate private data and therefore a switch from a struct to a class), then we'll also have to modify all the users. Using a class is less likely to cause the callers of its member functions to change.
 
 I agree that this is definitely a tradeoff. I think a couple of things can serve to minimize the impact of these scenarios. First, [DMI](dmi.md) gives guidance that keeps the scope of data small, meaning that the scope of updates when objects change will also be small. Second, changing from setting a variable directly to calling a getter or setter when a new invariance is introduced is a minor refactor. Third, the placement of data is often just a best guess at first, so the location, type, etc. of data is likely to change over time anyway. The setter/getter interface is also fluid early in development. Modern IDEs significantly simplify these types of refactors, and the introduction of AI will only continue this trend.
 
 ## Conclusion
 
-Invariance is an important concept that can serve as guidance in designing and implementing code. It's integral to [DMI](dmi.md), so check out that blog to learn more about how invariance is applied in DMI to fulfill the Single Responsibility and Open-Closed Principles!
+Invariance is an important concept that can serve as guidance in designing and implementing code. It's integral to [Decision Making Isolation](dmi.md), so be on the lookout for that future blog to learn more about how invariance is applied in DMI to fulfill the Single Responsibility and Open-Closed Principles!
