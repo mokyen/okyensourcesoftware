@@ -61,6 +61,7 @@ nav:
   - Blog:
     - 'invariance.md'
     - 'dmi.md'
+    - 'godbolt_cmake_gtest.md'
 
 copyright: |
   &copy; 2024 <a href="https://github.com/mokyen"  target="_blank" rel="noopener">Michael Okyen</a>
