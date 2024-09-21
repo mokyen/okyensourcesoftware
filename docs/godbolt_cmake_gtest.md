@@ -6,15 +6,15 @@ Learn how to set up Google Test (Gtest) with CMake in Compiler Explorer (Godbolt
 
 ## Introduction
 
-Compiler Explorer (CE), also known as godbolt.org, has been a game-changer for many software engineers, myself included. Over the past four years, it has significantly impacted my development process. This tool's influence extends beyond individual developers; even tech giants like Google incorporate CE into their official processes. The C++ community (and many others) owes a debt of gratitude to [Matt Godbolt](https://xania.org/) for creating this invaluable resource.
+Compiler Explorer (CE), also known as godbolt.org, has been a game-changer for many software engineers, myself included. Over the past four years, it has significantly impacted my development process. This tool's influence extends beyond individual developers; even tech giants like Google incorporate CE [into their official processes](https://www.youtube.com/watch?v=torqlZnu9Ag). The C++ community (and many others) owes a debt of gratitude to [Matt Godbolt](https://xania.org/) for creating this invaluable resource.
 
-One of CE's most powerful applications is in learning and implementing Test Driven Development (TDD) using Google Test. Previously, setting up a TDD environment could take hours. With CE and some guidance from [Niall Cooling's blog](https://blog.feabhas.com/2020/08/tdd-with-compiler-explorer/), I was able to start unit testing in under two minutes. This accessibility extends to various devices, from desktops to tablets, and even smartphones (though mobile usage has its limitations).
+One of CE's most powerful applications is in learning how to perform Test Driven Development (TDD). Previously, setting up a TDD environment could take hours. With CE and some guidance from [Niall Cooling's blog](https://blog.feabhas.com/2020/08/tdd-with-compiler-explorer/), I was able to start unit testing in under two minutes. This accessibility extends to various devices, from desktops to tablets, and even smartphones (though mobile usage has its limitations).
 
 While CE's Gtest integration works seamlessly for single-file projects, things get more complex when you need to separate source code and unit tests. This blog post will guide you through setting up Gtest with CMake in Compiler Explorer for multi-file projects, sharing insights from my experience and offering solutions to common challenges.
 
 ## Why This Matters
 
-As your projects grow, separating source code and unit tests becomes crucial for maintainability. However, this separation often introduces complexity, especially when working with online tools like Compiler Explorer. By mastering the setup of Gtest with CMake in CE, you can:
+As your projects grow, separating source code and unit tests becomes crucial for maintainability. This division becomes required if you're creating a library that you want to be usable by others. However, this separation often introduces complexity, especially when working with online tools like Compiler Explorer. By mautilizing  the setup of Gtest with CMake in CE, you can:
 
 1. Quickly prototype and test complex, multi-file C++ projects
 2. Share your work easily with colleagues or the community
@@ -51,7 +51,7 @@ The need for a multi-file setup became even more apparent when I started a profe
 
 ### The CMake Solution
 
-While CE has supported multiple files using CMake for years, incorporating Gtest isn't straightforward due to compilation time limits. This challenge led me to develop the solution I'm sharing in this blog post.
+While CE has supported multiple files using CMake for years, incorporating Gtest isn't straightforward due to the interworkings of CD and compilation time limits. This challenge led me to develop the solution I'm sharing in this blog post.
 
 In the following sections, we'll dive into how to set up Gtest with CMake in Compiler Explorer, overcoming these limitations and enabling more complex, real-world project structures.
 
@@ -59,7 +59,7 @@ In the following sections, we'll dive into how to set up Gtest with CMake in Com
 
 ### The Starter Example
 
-To get you up and running quickly, I've prepared a [starter example project](https://godbolt.org/z/5GYb95sz9). This example demonstrates the key components needed to use Gtest with CMake in Compiler Explorer.
+To get you up and running quickly, I've prepared a [starter example project](https://godbolt.org/z/5GYb95sz9). This example demonstrates the key components needed to use Gtest with CMake in Compiler Explorer. A big 'thank you' to RF and French Joe for figuring this out initially!
 
 ### Key Components of the Setup
 
@@ -89,8 +89,8 @@ Let's break down the essential elements that make this setup work:
 
 4. **Project Structure**
    - `CMakeLists.txt`: Main CMake configuration file
-   - `main.cpp`: Main source file
-   - `test.cpp`: Test file
+   - `source.cpp`: A source file
+   - `test_source.cpp`: Test file (which can be named anything)
    - Additional `.cpp` and `.h` files as needed
 
 This structure allows for a clear separation of concerns while remaining manageable within CE's interface.
@@ -101,17 +101,14 @@ Here's a basic `CMakeLists.txt` file that ties everything together:
 
 ```cmake
 cmake_minimum_required(VERSION 3.5)
+
 project(MyProject)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+add_executable(the_executable
+    source.cpp
+    test_source.cpp)
 
-enable_testing()
-
-add_executable(the_executable main.cpp test.cpp)
-target_link_libraries(the_executable PRIVATE gtest gmock gtest_main)
-
-add_test(NAME MyTest COMMAND the_executable)
+target_link_libraries(the_executable PRIVATE gtest gmock gmock_main)
 ```
 
 This configuration sets up a basic project with Gtest support, compiling both your main code and tests into a single executable.
@@ -124,10 +121,10 @@ While setting up Gtest with CMake in Compiler Explorer is generally straightforw
 
 ### Understanding the Issue
 
-Compiler Explorer's strength lies in its support for numerous compilers and libraries. However, this variety can lead to compatibility issues:
+Among Compiler Explorer's greatest strengths lies is its support for numerous compilers and libraries. However, this variety can lead to compatibility issues:
 
 1. **Pre-built Libraries**: CE uses pre-built versions of libraries like Gtest, installed using Conan.
-2. **Location of Libraries**: These pre-built Gtest libraries are typically located at `/app/googletest/lib/libgtest_maind.a`.
+2. **Location of Libraries**: These pre-built Gtest libraries are typically located at `/app/googletest/lib/libgtest_maind.a`. This library must be linked to the binary via CmakeLists.txt.
 3. **Version Mismatches**: Not every Gtest library revision is pre-built for every compiler version in CE.
 
 ### Symptoms of Version Incompatibility
@@ -154,7 +151,10 @@ To navigate around this issue, follow these steps:
    - In the CE interface, verify which version of Gtest is being used.
    - If possible, try different Gtest versions to find one that works with your setup.
 
-4. **Simplify and Iterate**:
+4. **Check C++ Version**:
+   - In the CE command line arguments textbox, enter the update the version (e.g. `-std=C++17`)
+
+5. **Simplify and Iterate**:
    - Start with a minimal working example and gradually add complexity.
    - This approach helps isolate where compatibility issues might be occurring.
 
@@ -165,7 +165,7 @@ Here's a step-by-step process to troubleshoot version incompatibilities:
 1. Start with the latest compiler version and Gtest version.
 2. If that fails, try an older compiler version.
 3. If issues persist, adjust the CMake version.
-4. Still having problems? Try a different Gtest version.
+4. Still having problems? Try a different Gtest version or the C++ standard.
 5. Repeat this process until you find a working combination.
 
 Remember, the goal is to find a stable configuration that allows you to focus on your actual code and tests, rather than wrestling with setup issues.
@@ -181,7 +181,7 @@ While using Gtest with CMake in Compiler Explorer is powerful, it's important to
    - As projects grow, you may hit these limits more frequently.
 
 2. **Inconsistent Compilation Success**:
-   - Larger projects may compile intermittently due to server load variations.
+   - Larger projects may compile intermittently, presumably due to server load variations.
    - This can make debugging challenging, as failures might not always be due to your code.
 
 3. **Limited Testing Scope**:
@@ -217,7 +217,7 @@ While there are limitations, the benefits of this approach far outweigh the draw
 
 I encourage you to try this setup in your next project. Experiment, iterate, and see how it can enhance your development workflow. Remember, the key to mastering any tool is practice and persistence.
 
-Happy coding, and may your tests always pass!
+Happy coding, and may your tests always fail and then pass!
 
 ## Further Reading
 
