@@ -59,7 +59,7 @@ In the following sections, we'll dive into how to set up Gtest with CMake in Com
 
 ### The Starter Example
 
-To get you up and running quickly, I've prepared a [starter example project](https://godbolt.org/z/5GYb95sz9). This example demonstrates the key components needed to use Gtest with CMake in Compiler Explorer. A big 'thank you' to RF and French Joe for figuring this out initially!
+To get you up and running quickly, I've prepared a [starter example project](https://godbolt.org/z/6vo5Kdco9). This example demonstrates the key components needed to use Gtest with CMake in Compiler Explorer. A big 'thank you' to RF and French Joe for figuring this out initially!
 
 ### Key Components of the Setup
 
