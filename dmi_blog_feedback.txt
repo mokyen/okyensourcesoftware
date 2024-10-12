@@ -1,0 +1,115 @@
+Feedback to implement on DMI blog from C++ now presentation and slides via Claude:
+Certainly! Here's a consolidated plan for polishing and structuring your blog post on Decision Making Isolation (DMI), incorporating elements from your presentation and the separate invariance article:
+
+Introduction
+
+Brief, engaging introduction setting the stage for DMI
+Include the leaf-raking analogy to illustrate the challenge of balancing software design
+Briefly describe your personal software journey
+
+
+What is Quality Software?
+
+Define quality software: "easy to read, modify, extend, and test"
+Present this definition in a callout box or as a key takeaway
+
+
+The SOLID Principles: Challenges with SRP and OCP
+
+Briefly explain SRP and OCP
+Discuss the difficulties in applying these principles
+Use examples from your presentation to illustrate these challenges
+
+
+Introducing Decision Making Isolation (DMI)
+
+Present the DMI vision statement
+List the three key guidelines of DMI in a visually appealing format
+Explain how DMI addresses the challenges of implementing SRP and OCP
+
+
+The Three Types of Code in DMI
+
+Define and provide examples of decision-making, IO, and wiring
+Use the "RequestHandler" example to show before and after DMI refactoring
+
+
+Implementing DMI: A Practical Guide
+a. Choosing between free functions, structs, and classes
+
+Explain the preference for free functions
+Discuss when to use structs vs. classes
+
+b. Understanding invariance (link to full article)
+
+Provide a brief summary of invariance
+Mention the three categories of invariance
+Emphasize its importance in deciding between classes and structs
+Include a callout: "Use a class when your data contains an invariant; use a struct when data members can vary independently."
+
+c. Component boundaries
+
+Explain when to use classes for component boundaries
+Clarify how this relates to or differs from invariance
+
+
+DMI and Unit Testing
+
+Explain the focus on testing decision-making code
+Provide examples of unit tests before and after applying DMI
+Discuss approaches for testing wiring and frameworks/drivers
+
+
+DMI and the SOLID Principles Revisited
+
+Explain how DMI helps fulfill SRP and OCP
+
+
+Comparison with Other Approaches
+
+Highlight what makes DMI unique
+Compare with approaches like "Extract Method" and "Separation of Concerns"
+
+
+A Design Process for Implementing DMI
+
+Present your design process steps in a visual format (flowchart or numbered list)
+Provide brief explanations for each step
+
+
+Challenges and Considerations
+
+Address common questions and concerns about DMI
+Include examples of how to overcome these challenges
+
+
+Conclusion and Call to Action
+
+Recap the key points of DMI
+Use the 5-point call to action from your presentation
+
+
+FAQ Section
+
+Include questions addressing common concerns, including one about invariance
+
+
+Visual Elements
+
+Add diagrams to illustrate key concepts (e.g., dinner decision flowchart)
+Include simplified versions of diagrams from your presentation slides
+
+
+Code Examples
+
+Incorporate more code examples throughout the post
+Ensure each example is accompanied by a brief explanation
+
+
+References
+
+Include all sources mentioned in your blog and presentation
+
+
+
+This structure combines the depth of your original blog post with the clarity and additional examples from your presentation, while also effectively incorporating the separate invariance article. It should result in a comprehensive, engaging, and practical guide to Decision Making Isolation that readers can easily understand and apply.
