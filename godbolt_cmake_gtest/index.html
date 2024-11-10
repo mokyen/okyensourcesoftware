@@ -1,0 +1,1090 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../dmi/">
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.44">
+    
+    
+      
+        <title>Using Gtest with CMake in Godbolt - Okyen Source Software</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.0253249f.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+      
+        <meta  property="og:type"  content="website" >
+      
+        <meta  property="og:title"  content="Using Gtest with CMake in Godbolt - Okyen Source Software" >
+      
+        <meta  property="og:description"  content="None" >
+      
+        <meta  property="og:image"  content="./assets/images/social/godbolt_cmake_gtest.png" >
+      
+        <meta  property="og:image:type"  content="image/png" >
+      
+        <meta  property="og:image:width"  content="1200" >
+      
+        <meta  property="og:image:height"  content="630" >
+      
+        <meta  property="og:url"  content="None" >
+      
+        <meta  name="twitter:card"  content="summary_large_image" >
+      
+        <meta  name="twitter:title"  content="Using Gtest with CMake in Godbolt - Okyen Source Software" >
+      
+        <meta  name="twitter:description"  content="None" >
+      
+        <meta  name="twitter:image"  content="./assets/images/social/godbolt_cmake_gtest.png" >
+      
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#using-gtest-with-cmake-in-godbolt" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Okyen Source Software" class="md-header__button md-logo" aria-label="Okyen Source Software" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Okyen Source Software
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Using Gtest with CMake in Godbolt
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6m0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4M7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="lime"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../about/" class="md-tabs__link">
+          
+  
+  About
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../invariance/" class="md-tabs__link">
+          
+  
+  Blog
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Okyen Source Software" class="md-nav__button md-logo" aria-label="Okyen Source Software" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Okyen Source Software
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    About
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            About
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../about/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    About the Blog
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bio/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    About Michael
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Blog
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Blog
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../invariance/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    What is Invariance?
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dmi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Decision-Making Isolation (DMI)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Using Gtest with CMake in Godbolt
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Using Gtest with CMake in Godbolt
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      TL;DR
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Introduction
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-matters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why This Matters
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#my-use-case" class="md-nav__link">
+    <span class="md-ellipsis">
+      My Use Case
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="My Use Case">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-birth-of-gtest_ct" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Birth of gtest_ct
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#development-in-compiler-explorer" class="md-nav__link">
+    <span class="md-ellipsis">
+      Development in Compiler Explorer
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-single-file-limitation" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Single-File Limitation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-sudoku-solver-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Sudoku Solver Project
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-cmake-solution" class="md-nav__link">
+    <span class="md-ellipsis">
+      The CMake Solution
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setting-up-gtest-with-cmake-in-compiler-explorer" class="md-nav__link">
+    <span class="md-ellipsis">
+      Setting Up Gtest with CMake in Compiler Explorer
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Setting Up Gtest with CMake in Compiler Explorer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-starter-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Starter Example
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-components-of-the-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Components of the Setup
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-cmakeliststxt" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example CMakeLists.txt
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-biggest-gotcha-to-avoid" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Biggest Gotcha to Avoid
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Biggest Gotcha to Avoid">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#understanding-the-issue" class="md-nav__link">
+    <span class="md-ellipsis">
+      Understanding the Issue
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#symptoms-of-version-incompatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptoms of Version Incompatibility
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-to-avoid-the-gotcha" class="md-nav__link">
+    <span class="md-ellipsis">
+      How to Avoid the Gotcha
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Workflow
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Limitations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Limitations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#workaround-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Workaround Strategy
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#putting-this-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      Putting This to Use
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conclusion
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#further-reading" class="md-nav__link">
+    <span class="md-ellipsis">
+      Further Reading
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="using-gtest-with-cmake-in-godbolt">Using Gtest with CMake in Godbolt</h1>
+<h2 id="tldr">TL;DR</h2>
+<p>Learn how to set up Google Test (Gtest) with CMake in Compiler Explorer (Godbolt) for efficient C++ unit testing in a multi-file project environment. This approach streamlines the development process, especially for personal projects or when you need a quick, sharable testing setup.</p>
+<h2 id="introduction">Introduction</h2>
+<p>Compiler Explorer (CE), also known as godbolt.org, has been a game-changer for many software engineers, myself included. Over the past four years, it has significantly impacted my development process. This tool's influence extends beyond individual developers; even tech giants like Google incorporate CE <a href="https://www.youtube.com/watch?v=torqlZnu9Ag">into their official processes</a>. The C++ community (and many others) owes a debt of gratitude to <a href="https://xania.org/">Matt Godbolt</a> for creating this invaluable resource.</p>
+<p>One of CE's most powerful applications is in learning how to perform Test Driven Development (TDD). Previously, setting up a TDD environment could take hours. With CE and some guidance from <a href="https://blog.feabhas.com/2020/08/tdd-with-compiler-explorer/">Niall Cooling's blog</a>, I was able to start unit testing in under two minutes. This accessibility extends to various devices, from desktops to tablets, and even smartphones (though mobile usage has its limitations).</p>
+<p>While CE's Gtest integration works seamlessly for single-file projects, things get more complex when you need to separate source code and unit tests. This blog post will guide you through setting up Gtest with CMake in Compiler Explorer for multi-file projects, sharing insights from my experience and offering solutions to common challenges.</p>
+<h2 id="why-this-matters">Why This Matters</h2>
+<p>As your projects grow, separating source code and unit tests becomes crucial for maintainability. This division becomes required if you're creating a library that you want to be usable by others. However, this separation often introduces complexity, especially when working with online tools like Compiler Explorer. By mautilizing  the setup of Gtest with CMake in CE, you can:</p>
+<ol>
+<li>Quickly prototype and test complex, multi-file C++ projects</li>
+<li>Share your work easily with colleagues or the community</li>
+<li>Maintain a clean, organized codebase even in an online environment</li>
+<li>Leverage the power of TDD without the overhead of local environment setup</li>
+</ol>
+<p>Let's dive into how we can achieve this and overcome some common hurdles along the way.</p>
+<h2 id="my-use-case">My Use Case</h2>
+<h3 id="the-birth-of-gtest_ct">The Birth of gtest_ct</h3>
+<p>After attending an enlightening talk at C++Now 2024 by Braden Ganetsky on <a href="https://schedule.cppnow.org/session/2024/unit-testing-an-expression-template-library-in-cpp20/">"Unit testing an expression template library in C++20,"</a> I was inspired to create a tiny compile-time wrapper library for Gtest. I aptly named it <a href="https://github.com/mokyen/gtest_ct">gtest_ct</a>. (Stay tuned for a dedicated blog post on this library once I finalize version 1.0!)</p>
+<h3 id="development-in-compiler-explorer">Development in Compiler Explorer</h3>
+<p>Compiler Explorer (CE) proved invaluable during the initial development of gtest_ct:</p>
+<ol>
+<li><strong>Rapid Prototyping</strong>: I quickly wrote and tested interesting code snippets.</li>
+<li><strong>Immediate Feedback</strong>: The library's functionality was verified using Gtest itself.</li>
+<li><strong>Iteration Speed</strong>: The development cycle was significantly faster than setting up a local environment.</li>
+</ol>
+<h3 id="the-single-file-limitation">The Single-File Limitation</h3>
+<p>As the library grew, I hit a roadblock: with tests and source in the same file, I couldn't use gtest_ct outside of its own development. This limitation sparked my search for a multi-file solution in CE.</p>
+<h3 id="the-sudoku-solver-project">The Sudoku Solver Project</h3>
+<p>The need for a multi-file setup became even more apparent when I started a professional development project to design and implement a sudoku solver. This project demanded:</p>
+<ol>
+<li><strong>Modular Design</strong>: Breaking the code into different files, mirroring a real-world project structure.</li>
+<li><strong>Separation of Concerns</strong>: Keeping source code and unit tests in separate files.</li>
+<li><strong>Scalability</strong>: Allowing for easy addition of new components and tests.</li>
+</ol>
+<h3 id="the-cmake-solution">The CMake Solution</h3>
+<p>While CE has supported multiple files using CMake for years, incorporating Gtest isn't straightforward due to the interworkings of CD and compilation time limits. This challenge led me to develop the solution I'm sharing in this blog post.</p>
+<p>In the following sections, we'll dive into how to set up Gtest with CMake in Compiler Explorer, overcoming these limitations and enabling more complex, real-world project structures.</p>
+<h2 id="setting-up-gtest-with-cmake-in-compiler-explorer">Setting Up Gtest with CMake in Compiler Explorer</h2>
+<h3 id="the-starter-example">The Starter Example</h3>
+<p>To get you up and running quickly, I've prepared a <a href="https://godbolt.org/z/6vo5Kdco9">starter example project</a>. This example demonstrates the key components needed to use Gtest with CMake in Compiler Explorer. A big 'thank you' to RF and French Joe for figuring this out initially!</p>
+<h3 id="key-components-of-the-setup">Key Components of the Setup</h3>
+<p>Let's break down the essential elements that make this setup work:</p>
+<ol>
+<li><strong>Configuring CE to Include Gtest</strong></li>
+<li>Select Gtest from the library drop-down menu in CE.</li>
+<li>
+<p>Be aware that multiple versions may be listed, which can create challenges (more on this in the "Gotchas" section).</p>
+</li>
+<li>
+<p><strong>Including the Correct Libraries</strong></p>
+</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">the_executable</span><span class="w"> </span><span class="s">PRIVATE</span><span class="w"> </span><span class="s">gtest</span><span class="w"> </span><span class="s">gmock</span><span class="w"> </span><span class="s">gtest_main</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>Include <code>gtest</code>, <code>gmock</code>, and <code>gtest_main</code> to ensure full Gtest functionality.</li>
+<li>
+<p><code>gtest_main</code> eliminates the need for a boilerplate main() function.</p>
+</li>
+<li>
+<p><strong>Setting the CMake Version</strong></p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">cmake_minimum_required</span><span class="p">(</span><span class="s">VERSION</span><span class="w"> </span><span class="s">3.5</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>The CMake version is a crucial configuration variable.</li>
+<li>
+<p>Version 3.5 works well in most cases, but you may need to adjust based on your specific needs or CE's current setup.</p>
+</li>
+<li>
+<p><strong>Project Structure</strong></p>
+</li>
+<li><code>CMakeLists.txt</code>: Main CMake configuration file</li>
+<li><code>source.cpp</code>: A source file</li>
+<li><code>test_source.cpp</code>: Test file (which can be named anything)</li>
+<li>Additional <code>.cpp</code> and <code>.h</code> files as needed</li>
+</ul>
+<p>This structure allows for a clear separation of concerns while remaining manageable within CE's interface.</p>
+<h3 id="example-cmakeliststxt">Example CMakeLists.txt</h3>
+<p>Here's a basic <code>CMakeLists.txt</code> file that ties everything together:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">cmake_minimum_required</span><span class="p">(</span><span class="s">VERSION</span><span class="w"> </span><span class="s">3.5</span><span class="p">)</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nb">project</span><span class="p">(</span><span class="s">MyProject</span><span class="p">)</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nb">add_executable</span><span class="p">(</span><span class="s">the_executable</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="s">source.cpp</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="s">test_source.cpp</span><span class="p">)</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">the_executable</span><span class="w"> </span><span class="s">PRIVATE</span><span class="w"> </span><span class="s">gtest</span><span class="w"> </span><span class="s">gmock</span><span class="w"> </span><span class="s">gmock_main</span><span class="p">)</span>
+</code></pre></div>
+<p>This configuration sets up a basic project with Gtest support, compiling both your main code and tests into a single executable.</p>
+<p>By following this setup, you'll have a solid foundation for using Gtest with CMake in Compiler Explorer, enabling more complex, multi-file projects.</p>
+<h2 id="the-biggest-gotcha-to-avoid">The Biggest Gotcha to Avoid</h2>
+<p>While setting up Gtest with CMake in Compiler Explorer is generally straightforward, there's one major pitfall that can cause frustration: version incompatibilities.</p>
+<h3 id="understanding-the-issue">Understanding the Issue</h3>
+<p>Among Compiler Explorer's greatest strengths lies is its support for numerous compilers and libraries. However, this variety can lead to compatibility issues:</p>
+<ol>
+<li><strong>Pre-built Libraries</strong>: CE uses pre-built versions of libraries like Gtest, installed using Conan.</li>
+<li><strong>Location of Libraries</strong>: These pre-built Gtest libraries are typically located at <code>/app/googletest/lib/libgtest_maind.a</code>. This library must be linked to the binary via CmakeLists.txt.</li>
+<li><strong>Version Mismatches</strong>: Not every Gtest library revision is pre-built for every compiler version in CE.</li>
+</ol>
+<h3 id="symptoms-of-version-incompatibility">Symptoms of Version Incompatibility</h3>
+<p>If you encounter build failures that seem unrelated to your code, it might be due to this version mismatch. Common symptoms include:</p>
+<ul>
+<li>Unexpected linker errors</li>
+<li>Missing symbol errors</li>
+<li>Compilation failures with cryptic messages</li>
+</ul>
+<h3 id="how-to-avoid-the-gotcha">How to Avoid the Gotcha</h3>
+<p>To navigate around this issue, follow these steps:</p>
+<ol>
+<li><strong>Try Different Compiler Versions</strong>:</li>
+<li>If your project fails to build, experiment with different versions of your chosen compiler.</li>
+<li>
+<p>Sometimes, switching to an older or newer compiler version can resolve the issue.</p>
+</li>
+<li>
+<p><strong>Adjust CMake Version</strong>:</p>
+</li>
+<li>The CMake version is another 'adjustment knob' in the configuration.</li>
+<li>
+<p>Try different CMake versions to find one compatible with your chosen Gtest and compiler versions.</p>
+</li>
+<li>
+<p><strong>Check Gtest Version</strong>:</p>
+</li>
+<li>In the CE interface, verify which version of Gtest is being used.</li>
+<li>
+<p>If possible, try different Gtest versions to find one that works with your setup.</p>
+</li>
+<li>
+<p><strong>Check C++ Version</strong>:</p>
+</li>
+<li>
+<p>In the CE command line arguments textbox, enter the update the version (e.g. <code>-std=C++17</code>)</p>
+</li>
+<li>
+<p><strong>Simplify and Iterate</strong>:</p>
+</li>
+<li>Start with a minimal working example and gradually add complexity.</li>
+<li>This approach helps isolate where compatibility issues might be occurring.</li>
+</ol>
+<h3 id="example-workflow">Example Workflow</h3>
+<p>Here's a step-by-step process to troubleshoot version incompatibilities:</p>
+<ol>
+<li>Start with the latest compiler version and Gtest version.</li>
+<li>If that fails, try an older compiler version.</li>
+<li>If issues persist, adjust the CMake version.</li>
+<li>Still having problems? Try a different Gtest version or the C++ standard.</li>
+<li>Repeat this process until you find a working combination.</li>
+</ol>
+<p>Remember, the goal is to find a stable configuration that allows you to focus on your actual code and tests, rather than wrestling with setup issues.</p>
+<p>By being aware of this potential gotcha and knowing how to work around it, you'll save time and frustration in your Compiler Explorer projects.</p>
+<h2 id="limitations">Limitations</h2>
+<p>While using Gtest with CMake in Compiler Explorer is powerful, it's important to be aware of its limitations:</p>
+<ol>
+<li><strong>Compilation Time Limits</strong>:</li>
+<li>CE restricts compilation and runtime to ensure fair usage for all users.</li>
+<li>
+<p>As projects grow, you may hit these limits more frequently.</p>
+</li>
+<li>
+<p><strong>Inconsistent Compilation Success</strong>:</p>
+</li>
+<li>Larger projects may compile intermittently, presumably due to server load variations.</li>
+<li>
+<p>This can make debugging challenging, as failures might not always be due to your code.</p>
+</li>
+<li>
+<p><strong>Limited Testing Scope</strong>:</p>
+</li>
+<li>You may need to comment out some unit test files in <code>CMakeLists.txt</code> to stay within time limits.</li>
+<li>This can lead to unintentional breaking of commented-out tests.</li>
+</ol>
+<h3 id="workaround-strategy">Workaround Strategy</h3>
+<p>To mitigate these limitations:</p>
+<ol>
+<li><strong>Modular Testing</strong>: Focus on testing specific modules or features at a time.</li>
+<li><strong>Regular Full Tests</strong>: Periodically uncomment all tests to ensure overall project health.</li>
+<li><strong>Local Backups</strong>: Maintain a local copy of your project for more comprehensive testing.</li>
+</ol>
+<h2 id="putting-this-to-use">Putting This to Use</h2>
+<p>With this setup, I'm now able to:</p>
+<ol>
+<li>Finish separating the gtest_ct library into separate files.</li>
+<li>Develop more complex projects like my sudoku solver with proper separation of concerns.</li>
+<li>Quickly prototype and test ideas without the overhead of local environment setup.</li>
+</ol>
+<h2 id="conclusion">Conclusion</h2>
+<p>Using Gtest with CMake in Compiler Explorer opens up new possibilities for C++ development and testing:</p>
+<ol>
+<li><strong>Rapid Prototyping</strong>: Quickly set up and test complex, multi-file C++ projects.</li>
+<li><strong>Easy Sharing</strong>: Share your work effortlessly with colleagues or the community.</li>
+<li><strong>Clean Codebase</strong>: Maintain an organized project structure, even in an online environment.</li>
+<li><strong>TDD Power</strong>: Leverage Test-Driven Development without local setup overhead.</li>
+</ol>
+<p>While there are limitations, the benefits of this approach far outweigh the drawbacks for many use cases, especially for personal projects or when you need a quick, sharable testing setup.</p>
+<p>I encourage you to try this setup in your next project. Experiment, iterate, and see how it can enhance your development workflow. Remember, the key to mastering any tool is practice and persistence.</p>
+<p>Happy coding, and may your tests always fail and then pass!</p>
+<h2 id="further-reading">Further Reading</h2>
+<ul>
+<li><a href="https://github.com/compiler-explorer/compiler-explorer/wiki">Compiler Explorer Documentation</a></li>
+<li><a href="https://github.com/google/googletest/blob/master/docs/primer.md">Google Test Primer</a></li>
+<li><a href="https://cmake.org/cmake/help/latest/guide/tutorial/index.html">CMake Tutorial</a></li>
+<li><a href="https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#t-testing">C++ Core Guidelines on Testing</a></li>
+</ul>
+<p>Feel free to reach out if you have any questions or want to share your experiences with this setup. Let's continue to push the boundaries of what's possible in online C++ development!</p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      &copy; 2024 <a href="https://github.com/mokyen"  target="_blank" rel="noopener">Michael Okyen</a>
+
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/mokyen" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1M480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2m-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3m-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://www.linkedin.com/in/michaelokyen/" target="_blank" rel="noopener" title="www.linkedin.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3M135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5m282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy"], "search": "../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.83f73b43.min.js"></script>
+      
+    
+  </body>
+</html>
