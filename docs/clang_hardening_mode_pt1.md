@@ -2,9 +2,9 @@
 
 *This blog post was generated with the assistance of Claude, Anthropic's AI assistant.*
 
-I recently began a new project, and I decided to pioneer the use of clang. I have been intrigued by the safety features and tooling around this compiler. Integration with clang tidy and clangd, the clang static analysis tools, IWYU, several safety flags, ARM FuSa Run-Time-System, and the host of sanitizers were all reasons to try something different than GCC. One other feature also really caught my eye earlier in 2024: the hardening modes.
+I recently began a new project, and I decided to pioneer the use of clang. I have been intrigued by the safety features and tooling around this compiler. Integration with [clang-tidy](https://clang.llvm.org/extra/clang-tidy/) and [clangd](https://clangd.llvm.org/), the [clang static analysis tools](https://clang-analyzer.llvm.org/), [IWYU](https://include-what-you-use.org/), several safety flags, [ARM FuSa Run-Time-System](https://developer.arm.com/Tools%20and%20Software/Keil%20MDK/FuSa%20Run-Time%20System), and the host of [sanitizers](https://github.com/google/sanitizers) were all reasons to try something different than GCC. One other feature also really caught my eye earlier in 2024: the [hardening modes](https://libcxx.llvm.org/Hardening.html).
 
-At C++Now 2024, I had the opportunity to attend the talk, "Security in C++: Hardening Techniques from the Trenches" by Louis Dionne of Apple. In this presentation, he covered a number of topics ranging from security concerns in modern C++ to practical implementation of safety features. He also discussed the hardening modes that had been integrated into the newer versions of clang. (Apple is a big contributor to clang and LLVM.) The hardening modes intrigued me in particular because of the ability to turn on checks at different levels and leave these checks on in production. The ability to tune things to meet your use case seemed extremely useful, but the ability to modify the feature on a translation unit basis was by far the most interesting aspect. I decided to finally dig in and try and get this to work. Rather than trying to integrate it on my whole project, I started where any good C++ engineer begins: godbolt.
+At C++Now 2024, I had the opportunity to attend the talk, ["Security in C++: Hardening Techniques from the Trenches" by Louis Dionne of Apple](https://youtu.be/t7EJTO0-reg?si=VpDiTv33ia26bswA). In this presentation, he covered a number of topics ranging from security concerns in modern C++ to practical implementation of safety features. He also discussed the hardening modes that had been integrated into the newer versions of clang. (Apple is a big contributor to clang and LLVM.) The hardening modes intrigued me in particular because of the ability to turn on checks at different levels and leave these checks on in production. The ability to tune things to meet your use case seemed extremely useful, but the ability to modify the feature on a translation unit basis was by far the most interesting aspect. I decided to finally dig in and try and get this to work. Rather than trying to integrate it on my whole project, I started where any good C++ engineer begins: godbolt.
 
 ## Understanding Hardening Modes
 
@@ -32,7 +32,7 @@ Hardening modes serve three critical purposes that make them valuable for both d
 3. **Enhanced Debugging**: When failures do occur, hardening modes (especially debug mode) provide clear, specific information about what went wrong. Instead of a generic segmentation fault or mysterious program behavior, you get detailed error messages identifying the exact nature of the violation.
 
 To enable these checks in our testing, we used these compiler flags:
-```
+```cmake
 -std=c++23 
 -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEBUG 
 -stdlib=libc++ 
