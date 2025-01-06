@@ -4,7 +4,7 @@
 
 I recently began a new project, and I decided to pioneer the use of clang. I have been intrigued by the safety features and tooling around this compiler. Integration with [clang-tidy](https://clang.llvm.org/extra/clang-tidy/) and [clangd](https://clangd.llvm.org/), the [clang static analysis tools](https://clang-analyzer.llvm.org/), [IWYU](https://include-what-you-use.org/), several safety flags, [ARM FuSa Run-Time-System](https://developer.arm.com/Tools%20and%20Software/Keil%20MDK/FuSa%20Run-Time%20System), and the host of [sanitizers](https://github.com/google/sanitizers) were all reasons to try something different than GCC. One other feature also really caught my eye earlier in 2024: the [hardening modes](https://libcxx.llvm.org/Hardening.html).
 
-At C++Now 2024, I had the opportunity to attend the talk, ["Security in C++: Hardening Techniques from the Trenches" by Louis Dionne of Apple](https://youtu.be/t7EJTO0-reg?si=VpDiTv33ia26bswA). In this presentation, he covered a number of topics ranging from security concerns in modern C++ to practical implementation of safety features. He also discussed the hardening modes that had been integrated into the newer versions of clang. (Apple is a big contributor to clang and LLVM.) The hardening modes intrigued me in particular because of the ability to turn on checks at different levels and leave these checks on in production. The ability to tune things to meet your use case seemed extremely useful, but the ability to modify the feature on a translation unit basis was by far the most interesting aspect. I decided to finally dig in and try and get this to work. Rather than trying to integrate it on my whole project, I started where any good C++ engineer begins: godbolt.
+At C++Now 2024, I had the opportunity to attend the talk, ["Security in C++: Hardening Techniques from the Trenches" by Louis Dionne of Apple](https://youtu.be/t7EJTO0-reg?si=VpDiTv33ia26bswA). In this presentation, he covered a number of topics ranging from security concerns in modern C++ to practical implementation of safety features. He also discussed the hardening modes that had been integrated into the newer versions of clang. The hardening modes intrigued me in particular because of the ability to turn on checks at different levels and leave these checks on in production. The ability to tune things to meet your use case seemed extremely useful, but the ability to modify the feature on a translation unit basis was by far the most interesting aspect. I decided to finally dig in and try and get this to work. Rather than trying to integrate it on my whole project, I started where any good C++ engineer begins: godbolt.
 
 ## Understanding Hardening Modes
 
@@ -40,102 +40,154 @@ To enable these checks in our testing, we used these compiler flags:
 -O0
 ```
 
-Let's look at some concrete examples showing how behavior changes with hardening modes:
+## What's Working
 
-### Without Hardening Modes
+In our testing, we found several categories of checks that successfully catch issues with helpful error messages in debug mode:
+
+### 1. Valid Input Range Checks
+These checks verify that iterator ranges are valid - the end iterator must be reachable from the begin iterator. We found two reliable ways to trigger these checks:
+
 ```cpp
-std::vector<int> vec(3);
-vec[100];  // Undefined behavior - might crash, might corrupt memory
-// Output: Might segfault, might corrupt data, might seem to work
+// Using string_view constructor:
+std::string str = "Hello World";
+const char* begin = str.data() + 5;  // Points to " World"
+const char* end = str.data() + 2;    // Points to "llo World"
+std::string_view invalid_view(begin, end);
+// Triggers: assertion (__end - __begin) >= 0 failed: std::string_view::string_view(iterator, sentinel) received invalid range
 ```
 
-### With Fast Mode
 ```cpp
-std::vector<int> vec(3);
-vec[100];  // Guaranteed immediate termination
-// Output: Program terminated with signal: SIGILL
+// Using span constructor:
+std::vector<int> vec = {1, 2, 3, 4, 5};
+const int* begin = vec.data() + 3;  // Points to 4
+const int* end = vec.data() + 1;    // Points to 2
+std::span<const int> invalid_span(begin, end);
+// Triggers: assertion last - first >= 0 failed: invalid range in span's constructor (iterator, sentinel)
 ```
 
-### With Debug Mode
-```cpp
-std::vector<int> vec(3);
-vec[100];  // Guaranteed immediate termination with information
-// Output: vector:1393: assertion __n < size() failed: vector[] index out of bounds
-```
+This shows that view types (string_view, span) are particularly good at catching invalid ranges during construction.
 
-The progression from undefined behavior to consistent, informative failures makes a significant difference in both development and production environments. In development, you catch bugs more reliably and understand them more quickly. In production, you prevent potential security exploits and get clearer information about any issues that do occur.
-
-## Levels of Hardening Modes
-
-The hardening modes provide this safety with different performance tradeoffs, allowing developers to choose the level of checking that makes sense for their use case.
-
-These features were introduced in LLVM 18 (Clang 18), which is the first release to fully support the hardening modes as described in the original RFC. The implementation will continue to evolve, with LLVM 19 and 20 planned to contain additional breaking changes and improvements.
-
-The hardening modes in libc++ provide several levels of safety checks:
-- `none` - No runtime checks (default)
-- `fast` - Essential security checks with minimal overhead
-- `extensive` - More comprehensive checks while maintaining reasonable performance
-- `debug` - All available checks enabled with detailed error messages
-
-| Mode | Compiler Flag | CMake Variable | Macro Definition |
-|------|---------------|----------------|------------------|
-| None | `-flibc++-hardening=none` | `LIBCXX_HARDENING_MODE=none` | `-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_NONE` |
-| Fast | `-flibc++-hardening=fast` | `LIBCXX_HARDENING_MODE=fast` | `-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST` |
-| Extensive | `-flibc++-hardening=extensive` | `LIBCXX_HARDENING_MODE=extensive` | `-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE` |
-| Debug | `-flibc++-hardening=debug` | `LIBCXX_HARDENING_MODE=debug` | `-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEBUG` |
-
-## What Actually Works in Practice
-
-After extensive testing, we've found several categories of checks that work reliably and others that aren't yet catching issues. Let's look at what we found:
-
-### Working Checks
-
-The hardening modes successfully catch several types of issues with helpful error messages in debug mode:
-
-#### 1. Vector Bounds Checking
+### 2. Vector Bounds Checking
 ```cpp
 std::vector<int> vec(3);
 vec[100];  // Triggers: "vector[] index out of bounds"
 ```
 
-#### 2. Optional Value Access
+### 3. Optional Value Access
 ```cpp
 std::optional<int> opt;
 *opt;  // Triggers: "optional operator* called on a disengaged value"
 ```
 
-#### 3. String View Bounds
+### 4. String View Bounds
 ```cpp
 std::string_view sv = "test";
 sv[100];  // Triggers: "string_view[] index out of bounds"
 ```
 
-#### 4. Algorithm Argument Validation
+### 5. Allocator Compatibility
 ```cpp
-int result = std::clamp(5, 10, 1);  // Triggers: "Bad bounds passed to std::clamp"
+template <typename T>
+struct MyAlloc {
+    // Required type definitions for C++ allocator
+    using value_type = T;
+    using size_type = std::size_t;
+    using difference_type = std::ptrdiff_t;
+    using propagate_on_container_move_assignment = std::false_type;
+    using is_always_equal = std::false_type;
+    using pointer = T*;
+    using const_pointer = const T*;
+    using reference = T&;
+    using const_reference = const T&;
+
+    template <typename U>
+    struct rebind {
+        using other = MyAlloc<U>;
+    };
+
+    // Track allocator instances with IDs
+    static int next_id;
+    int id;
+    
+    MyAlloc() noexcept : id(next_id++) {}
+    
+    template <typename U>
+    MyAlloc(const MyAlloc<U>& other) noexcept : id(other.id) {}
+    
+    // Memory management functions
+    T* allocate(std::size_t n) {
+        return static_cast<T*>(::operator new(n * sizeof(T)));
+    }
+    
+    void deallocate(T* p, std::size_t) noexcept {
+        ::operator delete(p);
+    }
+    
+    // Make allocators explicitly incompatible
+    bool operator==(const MyAlloc& other) const noexcept {
+        return false;  // Always incompatible
+    }
+};
+
+template <typename T>
+int MyAlloc<T>::next_id = 0;
+
+// Usage
+std::set<int, std::less<>, MyAlloc<int>> s1(MyAlloc<int>());
+std::set<int, std::less<>, MyAlloc<int>> s2(MyAlloc<int>());
+s1.insert(1);
+auto node = s1.extract(1);
+s2.insert(std::move(node));  // Triggers: "node_type with incompatible allocator passed to set::insert()"
 ```
 
-### Handled by Standard Exceptions
+### 6. Overlapping Ranges
+Our investigation revealed that overlapping range checks work differently than initially expected. Rather than triggering runtime assertions, the implementation safely handles overlapping ranges while providing compile-time checks where possible:
 
-These checks are caught through normal exception mechanisms rather than hardening:
+```cpp
+// Example demonstrating safe handling of overlapping ranges:
+auto buffer = std::make_unique<char[]>(100);
+std::strcpy(buffer.get(), "Hello World");
+size_t len = std::strlen(buffer.get());
 
-#### 1. Vector at() Access
+char* dest = buffer.get() + 1;
+const char* src = buffer.get();
+
+std::char_traits<char>::copy(dest, src, len);
+// Results in "HHello World" - demonstrating safe handling of overlap
+```
+
+This shows that the hardening system employs a multi-layered approach:
+- Compile-time checks to prevent obviously unsafe operations
+- Runtime implementation that safely handles overlapping memory operations
+- Focus on preventing undefined behavior through implementation rather than runtime assertions
+
+## Handled by Standard Exceptions
+
+Some checks are handled through normal exception mechanisms rather than hardening:
+
+### 1. Vector at() Access
 ```cpp
 std::vector<int> vec(3);
 vec.at(1000);  // Throws std::out_of_range, not hardening check
 ```
 
-#### 2. String Operations
+### 2. String Operations
 ```cpp
 std::string str = "test";
 str.erase(str.length() + 1, 1);  // Throws std::out_of_range
 ```
 
-### Currently Not Catching
+### 3. Null Function Calls
+```cpp
+std::function<void()> f = nullptr;
+f();  // Throws std::bad_function_call instead of triggering hardening check
+```
+
+## Currently Not Catching
 
 Several categories of checks that we expected aren't currently triggering:
 
-#### 1. Iterator Invalidation
+### 1. Iterator Invalidation
 ```cpp
 std::vector<int> vec{1, 2, 3};
 auto it = vec.begin();
@@ -143,13 +195,7 @@ vec.clear();
 *it = 100;  // No check triggered for invalid iterator use
 ```
 
-#### 2. Overlapping Ranges
-```cpp
-std::vector<int> vec{1, 2, 3, 4};
-std::copy(vec.begin(), vec.end(), vec.begin() + 1);  // No check for overlapping ranges
-```
-
-#### 3. Container Invariants
+### 2. Container Invariants
 ```cpp
 struct BadCompare {
     bool operator()(int a, int b) const { 
@@ -161,13 +207,13 @@ bad_set.insert(1);
 bad_set.insert(2);  // No check for invalid comparator
 ```
 
-#### 4. Smart Pointer Array Bounds
+### 3. Smart Pointer Array Bounds
 ```cpp
 auto arr = std::make_unique<int[]>(5);
 arr[10] = 42;  // No check for array bounds
 ```
 
-#### 5. Mutex Operations
+### 4. Mutex Operations
 ```cpp
 std::mutex mtx;
 mtx.lock();
@@ -175,25 +221,26 @@ mtx.unlock();
 mtx.unlock();  // Double unlock not caught
 ```
 
-#### 6. Allocator Compatibility
-```cpp
-using RegularSet = std::set<int>;
-using CustomSet = std::set<int, std::less<>, MyAlloc<int>>;
-RegularSet s1{1, 2, 3};
-CustomSet s2;
-auto node = s1.extract(1);
-// Even with runtime type manipulation, allocator incompatibility not caught
-```
+### 5. Null Pointer Access
+Despite multiple attempts with different standard library components, consistent null pointer checks were difficult to trigger. The standard library often handles null pointer cases through exceptions or implementation-defined behavior rather than hardening checks.
 
 ## Practical Implications
 
-The current implementation is most effective at catching:
+Based on our testing, the current implementation is most effective at catching:
 - Basic container bounds violations
 - Invalid optional access
 - String view bounds violations
 - Some algorithm argument validation
+- Allocator compatibility issues
+- Invalid iterator ranges in view types (string_view, span)
 
-These checks alone can catch many common sources of undefined behavior, making the hardening modes valuable even in their current state. However, be aware that more complex issues like iterator invalidation, overlapping ranges, or allocator compatibility aren't yet being caught.
+These checks alone can catch many common sources of undefined behavior, making the hardening modes valuable even in their current state. However, be aware that:
+
+1. Some checks operate differently than expected (like overlapping ranges being handled safely rather than asserting)
+2. Some potential checks are handled by standard exceptions rather than hardening
+3. More complex issues like iterator invalidation or null pointer dereference aren't consistently caught
+4. The effectiveness of checks can vary based on the specific standard library component being used
+5. View types (string_view, span) seem to have the most robust checking mechanisms
 
 ## Next Steps
 
