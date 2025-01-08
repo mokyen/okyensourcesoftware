@@ -1,8 +1,10 @@
-# Understanding Clang's Hardening Modes: An In-Depth Investigation
+# Exploring Clang's Hardening Modes
 
 *This blog post was generated with the assistance of Claude, Anthropic's AI assistant.*
 
-I recently conducted an in-depth investigation of Clang's hardening modes, a powerful feature in libc++ designed to improve code security and reliability. Through hands-on testing and source code analysis, I've uncovered interesting details about how these protections work in practice. In this post, I'll share what I've learned about the implementation strategies and real-world effectiveness of these safety features.
+I recently began a new project, and I decided to pioneer the use of clang. I have been intrigued by the safety features and tooling around this compiler. Integration with [clang-tidy](https://clang.llvm.org/extra/clang-tidy/) and [clangd](https://clangd.llvm.org/), the [clang static analysis tools](https://clang-analyzer.llvm.org/), [IWYU](https://include-what-you-use.org/), several safety flags, [ARM FuSa Run-Time-System](https://developer.arm.com/Tools%20and%20Software/Keil%20MDK/FuSa%20Run-Time%20System), and the host of [sanitizers](https://github.com/google/sanitizers) were all reasons to try something different than GCC. One other feature also really caught my eye earlier in 2024: the [hardening modes](https://libcxx.llvm.org/Hardening.html).
+
+At C++Now 2024, I had the opportunity to attend the talk, ["Security in C++: Hardening Techniques from the Trenches" by Louis Dionne of Apple](https://youtu.be/t7EJTO0-reg?si=VpDiTv33ia26bswA). In this presentation, he covered a number of topics ranging from security concerns in modern C++ to practical implementation of safety features. He also discussed the hardening modes that had been integrated into the newer versions of clang. The hardening modes intrigued me in particular because of the ability to turn on checks at different levels and leave these checks on in production. The ability to tune things to meet your use case seemed extremely useful, but the ability to modify the feature on a translation unit basis was by far the most interesting aspect. I decided to finally dig in and try and get this to work. Rather than trying to integrate it on my whole project, I started where any good C++ engineer begins: godbolt.
 
 ## Understanding Hardening Modes
 
@@ -38,133 +40,150 @@ To enable these checks in our testing, we used these compiler flags:
 -O0
 ```
 
-## Implementation Strategies: A Deep Dive
+## What's Working
 
-Our investigation revealed that the hardening system employs different strategies for different types of checks. Understanding these strategies helps explain why some checks work differently than others.
+Our testing has confirmed that several categories of checks work reliably:
 
-### Strategy 1: Bounded Iterator Protection
+### 1. Valid Input Range Checks
+These checks verify that iterator ranges are valid - the end iterator must be reachable from the begin iterator. We found two reliable ways to trigger these checks:
 
-The bounded iterator system demonstrates the most straightforward implementation strategy. This protection is particularly effective for view-type containers like std::span and std::string_view. Here's how it works:
-
-```cpp
-// Example of bounded iterator protection
-std::string_view sv = "Hello";
-auto it = sv.begin();
-it += 10;  // Triggers: "Attempt to dereference an out-of-range iterator"
-*it;       // Program terminates with clear error message
-```
-
-The protection is implemented by storing additional state directly in the iterator object, allowing it to perform bounds checking on every operation. This approach works well because:
-- The valid range never changes during the view's lifetime
-- No reallocation or modification tracking is needed
-- The bounds checking adds minimal overhead
-
-### Strategy 2: External API Validation
-
-Our analysis of the mutex implementation revealed a different but equally effective strategy. Instead of maintaining additional state, the hardening system validates the results of system calls. Here's how it works in the mutex implementation:
-
-```cpp
-void mutex::unlock() noexcept {
-  int ec = __libcpp_mutex_unlock(&__m_);
-  (void)ec;
-  _LIBCPP_ASSERT_VALID_EXTERNAL_API_CALL(
-      ec == 0, "call to mutex::unlock failed. A possible reason is that the mutex wasn't locked");
-}
-```
-
-This approach:
-- Leverages existing error reporting from the system
-- Avoids duplicating state tracking
-- Catches real failures reported by the system implementation
-- Has minimal performance impact
-
-The effectiveness of this approach depends on the underlying system implementation reporting errors correctly, but it's a clever way to add safety checks without additional overhead.
-
-### Strategy 3: Container-Level Validation
-
-Some protections are implemented at the container level rather than in iterators or through system calls. For example:
-
-```cpp
-std::vector<int> vec(3);
-vec[100];  // Triggers: "vector[] index out of bounds"
-```
-
-This type of validation is implemented directly in the container's member functions, providing immediate feedback when operations would lead to undefined behavior.
-
-## What's Currently Working
-
-Our testing revealed several categories of checks that work reliably:
-
-1. **View Container Bounds Checking**
 ```cpp
 // Using string_view constructor:
 std::string str = "Hello World";
-const char* begin = str.data() + 5;  
-const char* end = str.data() + 2;    
+const char* begin = str.data() + 5;  // Points to " World"
+const char* end = str.data() + 2;    // Points to "llo World"
 std::string_view invalid_view(begin, end);
-// Triggers: assertion (__end - __begin) >= 0 failed
+// Triggers: assertion (__end - __begin) >= 0 failed: std::string_view::string_view(iterator, sentinel) received invalid range
 ```
 
-2. **Vector Access Protection**
+```cpp
+// Using span constructor:
+std::vector<int> vec = {1, 2, 3, 4, 5};
+const int* begin = vec.data() + 3;  // Points to 4
+const int* end = vec.data() + 1;    // Points to 2
+std::span<const int> invalid_span(begin, end);
+// Triggers: assertion last - first >= 0 failed: invalid range in span's constructor
+```
+
+### 2. Vector Bounds Checking
 ```cpp
 std::vector<int> vec(3);
 vec[100];  // Triggers: "vector[] index out of bounds"
 ```
 
-3. **Optional Value Protection**
+### 3. Optional Value Access
 ```cpp
 std::optional<int> opt;
 *opt;  // Triggers: "optional operator* called on a disengaged value"
 ```
 
-4. **External API Validation**
-As seen in the mutex implementation, the system can validate results from external API calls and provide meaningful error messages when operations fail.
+### 4. String View Bounds
+```cpp
+std::string_view sv = "test";
+sv[100];  // Triggers: "string_view[] index out of bounds"
+```
 
-## Implementation Limitations and Design Choices
+### 5. Allocator Compatibility
+```cpp
+template <typename T>
+struct MyAlloc {
+    // Custom allocator implementation...
+    bool operator==(const MyAlloc& other) const noexcept {
+        return false;  // Always incompatible
+    }
+};
 
-Through our investigation, we've uncovered several interesting design choices and current limitations:
+std::set<int, std::less<>, MyAlloc<int>> s1(MyAlloc<int>());
+std::set<int, std::less<>, MyAlloc<int>> s2(MyAlloc<int>());
+s1.insert(1);
+auto node = s1.extract(1);
+s2.insert(std::move(node));  // Triggers: "node_type with incompatible allocator"
+```
 
-1. **Iterator Invalidation for Dynamic Containers**
+### 6. Bad Comparator Detection
+```cpp
+std::vector<int> vec = {1, 2, 3};
+// Provide an invalid comparator that violates strict weak ordering
+std::sort(vec.begin(), vec.end(), 
+    [](int a, int b) { return true; });
+// Triggers: "Comparator does not induce a strict weak ordering"
+```
+
+## Understanding Implementation Limits
+
+Our testing has also revealed areas where the implementation has specific limitations or behaviors worth understanding:
+
+### 1. Iterator Invalidation
 ```cpp
 std::vector<int> vec{1, 2, 3};
 auto it = vec.begin();
 vec.clear();  // Invalidates iterator
-*it = 100;    // No check triggered
+*it = 100;    // No check triggered for invalid iterator use
 ```
-This limitation is documented and stems from the complexity of tracking iterator validity for containers that can reallocate.
+The documentation explicitly notes that vector and string iterator invalidation is not checked. This is a documented limitation of the current implementation.
 
-2. **Mutex Validation Dependency**
-While mutex validation is implemented, its effectiveness depends on the underlying pthread implementation reporting errors correctly. This design choice avoids overhead but means protection might vary across platforms.
+### 2. Overlapping Ranges
+```cpp
+std::vector<int> vec = {1, 2, 3, 4, 5};
+std::copy_backward(vec.begin(), vec.end(), 
+                  vec.begin() + vec.size() - 1);
+```
+While our testing showed this leads to memory corruption, it's detected through the allocator's mechanisms rather than direct hardening checks. The hardening system doesn't currently implement direct overlap detection.
 
-3. **View Type Priority**
-The implementation prioritizes protections for view types (span, string_view) where bounds checking is straightforward and efficient. This suggests a pragmatic approach to adding safety features where they can be implemented most effectively.
+### 3. Mutex Operations
+```cpp
+std::mutex mtx;
+mtx.lock();
+mtx.unlock();
+mtx.unlock();  // Should be undefined behavior
+```
+Our source code analysis revealed that mutex validation is implemented through the `_LIBCPP_ASSERT_VALID_EXTERNAL_API_CALL` check, which validates the return codes from pthread operations. The effectiveness of these checks depends on the underlying pthread implementation.
+
+### 4. Hash Function Requirements
+```cpp
+struct BadHash {
+    size_t operator()(int x) const { return 42; }
+};
+
+std::unordered_set<int, BadHash> s;
+s.insert(1);  // No hardening check triggers
+```
+Our testing showed that semantic requirements for hash functions are not currently validated by the hardening system. This makes sense given the statistical nature of what makes a good hash function.
 
 ## Practical Implications
 
-Based on our investigation, here are the key takeaways for developers:
+Based on our extensive testing, we can summarize what works best in the current implementation:
 
-1. The hardening system uses different strategies for different types of checks, each with its own strengths and limitations.
+### What Works Well
+- Basic container bounds violations
+- Invalid optional access
+- String view bounds violations
+- Some algorithm argument validation (like bad comparators)
+- Allocator compatibility issues
+- Invalid iterator ranges in view types (string_view, span)
 
-2. View-type containers (span, string_view) have the most robust protection through bounded iterators.
+### Current Limitations
+1. Some checks operate differently than expected (like overlapping ranges being handled through allocator checks)
+2. Some potential checks are handled by standard exceptions rather than hardening
+3. More complex issues like iterator invalidation aren't currently caught
+4. The effectiveness of system-dependent checks (like mutex operations) can vary by platform
+5. View types (string_view, span) have the most robust checking mechanisms
 
-3. External API validation (like mutex operations) depends on the underlying system implementation but adds safety without overhead.
+## Next Steps
 
-4. Some complex cases (like iterator invalidation in dynamic containers) remain challenging to protect against.
+1. For Projects Using Hardening:
+   - Consider enabling different hardening modes for different translation units based on their requirements
+   - Plan additional validation where needed for areas not currently covered by hardening checks
+   - Monitor LLVM release notes for new hardening features
 
-5. The implementation shows a thoughtful balance between safety and performance, focusing first on protections that can be implemented efficiently.
+2. Reach out to the clang developers to understand:
+   - Which checks are planned for future releases
+   - If any additional configuration is needed for checks that aren't triggering
+   - Timeline for implementing additional checks
 
-## Future Directions
+3. Experiment with per-translation-unit hardening mode selection to understand:
+   - How to effectively mix different hardening levels
+   - Performance implications
+   - Best practices for deployment
 
-Several areas warrant continued investigation:
-
-1. **Implementation Patterns**: Understanding the different protection strategies could help predict where new safety features might be added.
-
-2. **Platform Dependencies**: The effectiveness of external API validation might vary across platforms, suggesting a need for platform-specific testing.
-
-3. **Performance Impact**: Different protection strategies have different performance implications, which could influence how they're used in production.
-
-## Conclusion
-
-Our investigation has revealed that Clang's hardening modes employ a sophisticated set of strategies to improve code safety. The implementation shows careful consideration of both security and performance, using different approaches where they make the most sense. Understanding these strategies helps developers make better use of the protection system and set appropriate expectations for different types of checks.
-
-The system continues to evolve, but even in its current state, it provides valuable protection against many common sources of undefined behavior in C++. The different implementation strategies - from bounded iterators to external API validation - demonstrate a pragmatic approach to improving code safety without sacrificing performance.
+I'll be sharing more about these experiences in future posts, particularly diving deeper into the implementation strategies and design decisions behind the hardening system. Stay tuned for a technical deep-dive into how these checks actually work under the hood!
