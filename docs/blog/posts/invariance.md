@@ -1,3 +1,12 @@
+---
+date: 2024-06-16  
+title: "What is Invariance?"
+authors:
+  - Michael Okyen
+categories:
+  - Blog
+---
+
 # What is Invariance?
 
 The term 'invariant' is one of the linchpins of Decision Making Isolation. It is used in the [Cpp Core Guidelines](https://isocpp.github.io/CppCoreGuidelines) as the reason to use a class versus struct. But what does it really mean?
