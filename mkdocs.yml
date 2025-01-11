@@ -34,7 +34,7 @@ plugins:
       post_dir: "{blog}/posts"
       post_url_format: "{slug}"
       blog_toc: true
-      authors: true
+      authors: false
   - rss:
       match_path: blog/posts/.*
       date_from_meta:
