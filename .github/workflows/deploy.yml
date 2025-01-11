@@ -1,93 +1,86 @@
-name: Deploy Preview
-on:
-  pull_request:
-    types: [opened, reopened, synchronize, closed]
-    branches:
-      - main
-jobs:
-  build-and-deploy:
-    if: github.event.action != 'closed'
-    runs-on: ubuntu-latest
-    steps:
-      # Step 1: Checkout code
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # This ensures full git history
-      
-      # Step 2: Set up Python
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
-      
-      # Step 3: Install dependencies
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install mkdocs mkdocs-material mkdocs-blogging-plugin mkdocs-rss-plugin pillow cairosvg
-      
-      # Step 4: Update site_url for Preview
-      - name: Update configurations for Preview
-        run: |
-          # Update site_url
-          if grep -q "site_url:" mkdocs.yml; then
-            sed -i "s|site_url: .*|site_url: https://mokyen.github.io/okyensourcesoftware-pr-${{ github.event.number }}|" mkdocs.yml
-          else
-            echo "site_url: https://mokyen.github.io/okyensourcesoftware-pr-${{ github.event.number }}" >> mkdocs.yml
-          fi
-      
-      # Step 5: Build the site
-      - name: Build the site
-        run: mkdocs build
-      
-      # Step 6: Check if preview repository exists
-      - name: Check if preview repository exists
-        id: check_repo
-        run: |
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            -H "Authorization: token ${{ secrets.PAT_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/mokyen/okyensourcesoftware-pr-${{ github.event.number }})
-          if [ "$HTTP_STATUS" -eq "404" ]; then
-            echo "repo_exists=false" >> $GITHUB_ENV
-          else
-            echo "repo_exists=true" >> $GITHUB_ENV
-          fi
-      
-      # Step 7: Create preview repository if it doesn't exist
-      - name: Create preview repository
-        if: env.repo_exists == 'false'
-        run: |
-          curl -X POST \
-          -H "Authorization: token ${{ secrets.PAT_TOKEN }}" \
-          -H "Accept: application/vnd.github.v3+json" \
-          https://api.github.com/user/repos \
-          -d '{"name":"okyensourcesoftware-pr-${{ github.event.number }}","auto_init":true}'
-      
-      # Step 8: Deploy to GitHub Pages (Preview)
-      - name: Deploy to GitHub Pages (Preview)
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          personal_token: ${{ secrets.PAT_TOKEN }}
-          publish_dir: ./site
-          external_repository: mokyen/okyensourcesoftware-pr-${{ github.event.number }}
-          publish_branch: gh-pages
-          force_orphan: true
-      
-      # Step 9: Display Preview Site URL
-      - name: Display Preview Site URL
-        run: |
-          echo "Preview Site URL: https://mokyen.github.io/okyensourcesoftware-pr-${{ github.event.number }}/"
-
-  cleanup:
-    if: github.event.action == 'closed'
-    runs-on: ubuntu-latest
-    steps:
-      # Step 1: Delete preview repository
-      - name: Delete preview repository
-        run: |
-          curl -X DELETE \
-          -H "Authorization: token ${{ secrets.PAT_TOKEN }}" \
-          -H "Accept: application/vnd.github.v3+json" \
-          https://api.github.com/repos/mokyen/okyensourcesoftware-pr-${{ github.event.number }}
+site_name: Okyen Source Software
+site_url: https://www.okyensourcesoftware.com
+theme:
+  name: material
+  custom_dir: overrides
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - toc.integrate
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.annotation
+    - content.code.copy
+  language: en
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+      primary: teal
+      accent: purple
+    - scheme: slate
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
+      primary: teal
+      accent: lime
+plugins:
+  - search
+  - blog:
+      blog_dir: blog
+      post_dir: "{blog}/posts"
+      post_url_format: "{slug}"
+      blog_toc: true
+      authors: true
+  - rss:
+      match_path: blog/posts/.*
+      date_from_meta:
+        as_creation: date
+      feed_title: Okyen Source Software Blog
+      feed_description: Stay updated with the latest blog posts
+      length: 10
+extra_javascript:
+  - https://giscus.app/client.js
+extra:
+  giscus:
+    repo: "mokyen/okyensourcesoftware"
+    repo_id: "R_kgDOK-mjQw"
+    category: "Blog Comments"
+    category_id: "DIC_kwDOK-mjQ84Cl7Cj"
+    mapping: "pathname"
+    strict: "0"
+    reactions_enabled: "1"
+    emit_metadata: "0"
+    input_position: "top"
+    theme: "preferred_color_scheme"
+    lang: "en"
+    loading: "lazy"
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/mokyen
+nav:
+  - Home: 'index.md'
+  - About:
+      - 'about.md'
+      - 'bio.md'
+  - Blog: 'blog/_index.md'
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - admonition
+  - pymdownx.arithmatex:
+      generic: true
+  - footnotes
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.mark
+  - attr_list
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+copyright: |
+  &copy; 2024 <a href="https://github.com/mokyen" target="_blank" rel="noopener">Michael Okyen</a>
