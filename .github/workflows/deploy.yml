@@ -25,7 +25,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install mkdocs mkdocs-material mkdocs-blogging-plugin mkdocs-rss-plugin pillow cairosvg
 
-      # Step 4: Dynamically update site_url for preview builds
+      # Step 4: Dynamically update site_url for Preview
       - name: Update site_url for Preview
         run: |
           sed -i "s|site_url: .*|site_url: https://mokyen.github.io/okyensourcesoftware/gh-pages-preview/${{ github.event.number }}/|" mkdocs.yml
@@ -41,3 +41,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
           publish_branch: gh-pages-preview/${{ github.event.number }}
+
+      # Step 7: Print Preview Site URL
+      - name: Display Preview Site URL
+        run: echo "Preview Site URL: https://mokyen.github.io/okyensourcesoftware/gh-pages-preview/${{ github.event.number }}/"
