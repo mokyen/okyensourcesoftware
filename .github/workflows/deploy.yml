@@ -34,14 +34,36 @@ jobs:
       - name: Build the site
         run: mkdocs build
 
-      # Step 6: Deploy to GitHub Pages (Preview)
+      # Step 6: Check if Preview Branch Exists
+      - name: Check if Preview Branch Exists
+        id: check_branch
+        run: |
+          if git ls-remote --heads origin gh-pages-preview/${{ github.event.number }}; then
+            echo "branch_exists=true" >> $GITHUB_ENV
+          else
+            echo "branch_exists=false" >> $GITHUB_ENV
+          fi
+
+      # Step 7: Deploy to GitHub Pages (Preview)
       - name: Deploy to GitHub Pages (Preview)
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
           publish_branch: gh-pages-preview/${{ github.event.number }}
+          keep_files: true
+        if: env.branch_exists == 'false'
 
-      # Step 7: Print Preview Site URL
+      - name: Update Existing Preview Branch
+        if: env.branch_exists == 'true'
+        run: |
+          git fetch origin gh-pages-preview/${{ github.event.number }}
+          git checkout gh-pages-preview/${{ github.event.number }}
+          cp -r ./site/* .
+          git add .
+          git commit -m "Update Preview Branch for PR #${{ github.event.number }}"
+          git push origin gh-pages-preview/${{ github.event.number }}
+
+      # Step 8: Print Preview Site URL
       - name: Display Preview Site URL
         run: echo "Preview Site URL: https://mokyen.github.io/okyensourcesoftware/gh-pages-preview/${{ github.event.number }}/"
