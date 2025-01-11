@@ -1,3 +1,13 @@
+---
+date: 2024-06-16  
+title: "Decision-Making Isolation (DMI)"
+author:
+  - mokyen
+categories:
+  - Blog
+comments: true
+---
+
 # Decision-Making Isolation (DMI)
 
 Decision-Making Isolation is a design philosophy that emphasizes separating the decision-making in code from the IO (gathering inputs to the decisions and making outputs based on those decisions) and the wiring code (which connects the decision-making and IO). DMI emphasizes [invariance](dmi.md) as a key concept in choosing how to structure code and prioritizes free functions over classes. The goal is to achieve a high level of purity that makes code easy to read, modify, extend, and test.

@@ -1,3 +1,13 @@
+---
+date: 2024-09-18  
+title: "Using Gtest with CMake in Godbolt"
+author:
+  - mokyen
+categories:
+  - Blog
+comments: true
+---
+
 # Using Gtest with CMake in Godbolt
 
 ## TL;DR
