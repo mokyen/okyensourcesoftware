@@ -68,8 +68,7 @@ nav:
   - About:
       - 'about.md'
       - 'bio.md'
-  - Blog:
-      - 'blog/posts/_index.md'
+  - Blog: 'blog/_index.md'
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
