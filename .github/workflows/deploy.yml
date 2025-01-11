@@ -55,14 +55,14 @@ jobs:
           branch_exists: ${{ env.branch_exists }}
         if: ${{ env.branch_exists == 'false' }}
 
-      # Step 7b: Update Existing Preview Branch
-      - name: Update Existing Preview Branch
+      # Step 7b: Create and Update Existing Preview Branch
+      - name: Create and Update Existing Preview Branch
         if: ${{ env.branch_exists == 'true' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git fetch origin gh-pages-preview/${{ github.event.number }}
-          git checkout gh-pages-preview/${{ github.event.number }}
+          git fetch origin
+          git checkout -b gh-pages-preview/${{ github.event.number }} || git checkout gh-pages-preview/${{ github.event.number }}
           cp -r ./site/* .
           git add .
           git commit -m "Update Preview Branch for PR #${{ github.event.number }}"
@@ -70,4 +70,4 @@ jobs:
 
       # Step 8: Print Preview Site URL
       - name: Display Preview Site URL
-        run: echo "Preview Site URL
+        run: echo "Preview Site URL: https://mokyen.github.io/okyensourcesoftware/gh-pages-preview/${{ github.event.number }}/"
