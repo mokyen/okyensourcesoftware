@@ -1,4 +1,5 @@
 site_name: Okyen Source Software
+site_url: https://www.okyensourcesoftware.com
 theme:
   name: material
   features:
