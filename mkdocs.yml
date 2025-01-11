@@ -35,17 +35,15 @@ plugins:
       blog_toc: true
       blog_description: "Software-related insights and articles"
       draft_indicator: true
-      authors:
-        - name: Michael Okyen
-          description: Software Engineer
-          url: https://github.com/mokyen
+      authors: true    # Changed this to boolean instead of list
   - rss:
       feed_title: "Okyen Source Software Blog"
       feed_description: "Stay updated with the latest blog posts on Okyen Source Software."
       feed_url: "https://mokyen.github.io/okyensourcesoftware"
       length: 10
-      authors:
-        - name: Michael Okyen
+      authors_info:    # Changed to authors_info for RSS plugin
+        Michael Okyen:
+          name: Michael Okyen
           url: https://github.com/mokyen
 extra_javascript:
   - https://giscus.app/client.js
@@ -63,6 +61,10 @@ extra:
     theme: "preferred_color_scheme"
     lang: "en"
     loading: "lazy"
+  authors:    # Moved authors to extra section
+    - name: Michael Okyen
+      description: Software Engineer
+      url: https://github.com/mokyen
 nav:
   - Home: 'index.md'
   - About:
