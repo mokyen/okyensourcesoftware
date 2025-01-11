@@ -1,10 +1,12 @@
 name: Deploy Preview
 on:
   pull_request:
+    types: [opened, reopened, synchronize, closed]
     branches:
       - main
 jobs:
   build-and-deploy:
+    if: github.event.action != 'closed'
     runs-on: ubuntu-latest
     steps:
       # Step 1: Checkout code
@@ -27,68 +29,62 @@ jobs:
       - name: Update site_url for Preview
         run: |
           if grep -q "site_url:" mkdocs.yml; then
-            sed -i "s|site_url: .*|site_url: https://mokyen.github.io/okyensourcesoftware/preview-${{ github.event.number }}|" mkdocs.yml
+            sed -i "s|site_url: .*|site_url: https://mokyen.github.io/okyensourcesoftware-pr-${{ github.event.number }}|" mkdocs.yml
           else
-            echo "site_url: https://mokyen.github.io/okyensourcesoftware/preview-${{ github.event.number }}" >> mkdocs.yml
+            echo "site_url: https://mokyen.github.io/okyensourcesoftware-pr-${{ github.event.number }}" >> mkdocs.yml
           fi
       
       # Step 5: Build the site
       - name: Build the site
         run: mkdocs build
       
-      # Step 6: Check if Preview Branch Exists
-      - name: Check if Preview Branch Exists
-        id: check_branch
+      # Step 6: Check if preview repository exists
+      - name: Check if preview repository exists
+        id: check_repo
         run: |
-          git fetch --all
-          if git ls-remote --heads origin "preview-${{ github.event.number }}"; then
-            echo "Branch exists"
-            echo "branch_exists=true" >> $GITHUB_ENV
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: token ${{ secrets.PAT_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/mokyen/okyensourcesoftware-pr-${{ github.event.number }})
+          if [ "$HTTP_STATUS" -eq "404" ]; then
+            echo "repo_exists=false" >> $GITHUB_ENV
           else
-            echo "Branch does not exist"
-            echo "branch_exists=false" >> $GITHUB_ENV
+            echo "repo_exists=true" >> $GITHUB_ENV
           fi
       
-      # Step 7: Deploy to GitHub Pages (New Branch)
-      - name: Deploy to GitHub Pages (Preview - New Branch)
+      # Step 7: Create preview repository if it doesn't exist
+      - name: Create preview repository
+        if: env.repo_exists == 'false'
+        run: |
+          curl -X POST \
+          -H "Authorization: token ${{ secrets.PAT_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/user/repos \
+          -d '{"name":"okyensourcesoftware-pr-${{ github.event.number }}","auto_init":true}'
+      
+      # Step 8: Deploy to GitHub Pages (Preview)
+      - name: Deploy to GitHub Pages (Preview)
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          personal_token: ${{ secrets.PAT_TOKEN }}
           publish_dir: ./site
-          publish_branch: preview-${{ github.event.number }}
-          cname: "" # Explicitly set no CNAME
-          force_orphan: true # Creates a new orphan branch without history
-        if: env.branch_exists == 'false'
-      
-      # Step 8: Update Existing Preview Branch
-      - name: Update Existing Preview Branch
-        if: env.branch_exists == 'true'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          # Fetch all branches
-          git fetch --all
-          
-          # Create and switch to a temporary branch
-          git checkout -b temp-preview-branch
-          
-          # Remove CNAME file if it exists
-          rm -f CNAME || true
-          
-          # Copy the new site contents
-          cp -r ./site/* .
-          
-          # Stage changes
-          git add .
-          
-          # Create commit
-          git commit -m "Update Preview Branch for PR #${{ github.event.number }}"
-          
-          # Force push to the preview branch
-          git push origin temp-preview-branch:preview-${{ github.event.number }} -f
+          external_repository: mokyen/okyensourcesoftware-pr-${{ github.event.number }}
+          publish_branch: gh-pages
+          force_orphan: true
       
       # Step 9: Display Preview Site URL
       - name: Display Preview Site URL
         run: |
-          echo "Preview Site URL: https://mokyen.github.io/okyensourcesoftware/preview-${{ github.event.number }}/"
+          echo "Preview Site URL: https://mokyen.github.io/okyensourcesoftware-pr-${{ github.event.number }}/"
+
+  cleanup:
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Delete preview repository
+      - name: Delete preview repository
+        run: |
+          curl -X DELETE \
+          -H "Authorization: token ${{ secrets.PAT_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/mokyen/okyensourcesoftware-pr-${{ github.event.number }}
