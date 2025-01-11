@@ -46,16 +46,18 @@ jobs:
 
       # Step 7a: Deploy to GitHub Pages (New Branch)
       - name: Deploy to GitHub Pages (Preview - New Branch)
-        if: env.branch_exists == 'false'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
           publish_branch: gh-pages-preview/${{ github.event.number }}
+        env:
+          branch_exists: ${{ env.branch_exists }}
+        if: ${{ env.branch_exists == 'false' }}
 
       # Step 7b: Update Existing Preview Branch
       - name: Update Existing Preview Branch
-        if: env.branch_exists == 'true'
+        if: ${{ env.branch_exists == 'true' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -68,4 +70,4 @@ jobs:
 
       # Step 8: Print Preview Site URL
       - name: Display Preview Site URL
-        run: echo "Preview Site URL: https://mokyen.github.io/okyensourcesoftware/gh-pages-preview/${{ github.event.number }}/"
+        run: echo "Preview Site URL
