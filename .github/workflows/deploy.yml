@@ -46,12 +46,12 @@ jobs:
 
       # Step 7a: Deploy to GitHub Pages (New Branch)
       - name: Deploy to GitHub Pages (Preview - New Branch)
+        if: env.branch_exists == 'false'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
           publish_branch: gh-pages-preview/${{ github.event.number }}
-        if: env.branch_exists == 'false'
 
       # Step 7b: Update Existing Preview Branch
       - name: Update Existing Preview Branch
