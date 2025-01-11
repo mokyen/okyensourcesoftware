@@ -2,7 +2,7 @@
 date: 2025-01-11  
 title: "About the Blog"
 authors:
-  - Michael Okyen
+  - mokyen
 categories:
   - Blog
 ---
