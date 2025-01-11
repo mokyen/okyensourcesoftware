@@ -2,7 +2,7 @@
 date: 2024-06-16  
 title: "What is Invariance?"
 authors:
-  - Michael Okyen
+  - mokyen
 categories:
   - Blog
 ---
