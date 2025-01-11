@@ -44,19 +44,21 @@ jobs:
             echo "branch_exists=false" >> $GITHUB_ENV
           fi
 
-      # Step 7: Deploy to GitHub Pages (Preview)
-      - name: Deploy to GitHub Pages (Preview)
+      # Step 7a: Deploy to GitHub Pages (New Branch)
+      - name: Deploy to GitHub Pages (Preview - New Branch)
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
           publish_branch: gh-pages-preview/${{ github.event.number }}
-          keep_files: true
         if: env.branch_exists == 'false'
 
+      # Step 7b: Update Existing Preview Branch
       - name: Update Existing Preview Branch
         if: env.branch_exists == 'true'
         run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git fetch origin gh-pages-preview/${{ github.event.number }}
           git checkout gh-pages-preview/${{ github.event.number }}
           cp -r ./site/* .
