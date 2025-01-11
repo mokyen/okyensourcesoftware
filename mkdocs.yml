@@ -26,13 +26,13 @@ theme:
         name: Switch to light mode
       primary: teal
       accent: lime
-
 plugins:
   - search
   - blog:
-      blog_dir: "blog"
-      blog_url: "blog"
-      blog_page_title: "Blog"
+      blog_dir: blog
+      post_dir: "{blog}/posts"
+      post_url_format: "{slug}"
+      blog_toc: true
       blog_description: "Software-related insights and articles"
       draft_indicator: true
   - rss:
@@ -40,10 +40,8 @@ plugins:
       feed_description: "Stay updated with the latest blog posts on Okyen Source Software."
       feed_url: "https://mokyen.github.io/okyensourcesoftware"
       length: 10
-
 extra_javascript:
   - https://giscus.app/client.js
-
 extra:
   giscus:
     repo: "mokyen/okyensourcesoftware"
@@ -58,7 +56,6 @@ extra:
     theme: "preferred_color_scheme"
     lang: "en"
     loading: "lazy"
-
 nav:
   - Home: 'index.md'
   - About:
@@ -66,7 +63,6 @@ nav:
       - 'bio.md'
   - Blog:
       - 'blog/_index.md'
-
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
@@ -82,6 +78,5 @@ markdown_extensions:
   - attr_list
   - pymdownx.emoji:
       emoji_generator: !!python/name:materialx.emoji.to_svg
-
 copyright: |
   &copy; 2024 <a href="https://github.com/mokyen" target="_blank" rel="noopener">Michael Okyen</a>
