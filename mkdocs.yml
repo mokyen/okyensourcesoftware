@@ -1,7 +1,6 @@
 site_name: Okyen Source Software
 theme:
   name: material
-  
   features:
     - navigation.tabs
     - navigation.sections
@@ -16,26 +15,41 @@ theme:
   palette:
     - scheme: default
       toggle:
-        icon: material/toggle-switch-off-outline 
+        icon: material/toggle-switch-off-outline
         name: Switch to dark mode
       primary: teal
-      accent: purple 
-    - scheme: slate 
+      accent: purple
+    - scheme: slate
       toggle:
         icon: material/toggle-switch
-        name: Switch to light mode    
+        name: Switch to light mode
       primary: teal
       accent: lime
 
 plugins:
-  - social
+  - search
+  - blog:
+      blog_dir: "blog"
+      blog_url: "blog"
+      blog_page_title: "Blog"
+      blog_description: "Software-related insights and articles"
+      draft_indicator: true
+  - rss:
+      feed_title: "Okyen Source Software Blog"
+      feed_description: "Stay updated with the latest blog posts on Okyen Source Software."
+      feed_url: "https://mokyen.github.io/okyensourcesoftware"
+      length: 10
 
-extra:
-  social:
-    - icon: fontawesome/brands/github-alt
-      link: https://github.com/mokyen
-    - icon: fontawesome/brands/linkedin
-      link: https://www.linkedin.com/in/michaelokyen/
+extra_javascript:
+  - https://giscus.app/client.js
+
+nav:
+  - Home: 'index.md'
+  - About:
+      - 'about.md'
+      - 'bio.md'
+  - Blog:
+      - 'blog/_index.md'
 
 markdown_extensions:
   - pymdownx.highlight:
@@ -53,15 +67,5 @@ markdown_extensions:
   - pymdownx.emoji:
       emoji_generator: !!python/name:materialx.emoji.to_svg
 
-nav:
-  - Home: 'index.md'
-  - About:
-    - 'about.md'
-    - 'bio.md'
-  - Blog:
-    - 'invariance.md'
-    - 'dmi.md'
-    - 'godbolt_cmake_gtest.md'
-
 copyright: |
-  &copy; 2024 <a href="https://github.com/mokyen"  target="_blank" rel="noopener">Michael Okyen</a>
+  &copy; 2024 <a href="https://github.com/mokyen" target="_blank" rel="noopener">Michael Okyen</a>
