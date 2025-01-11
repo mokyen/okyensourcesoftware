@@ -10,13 +10,8 @@ This site serves as a place for me to share some of my learnings and ideas on so
 
 I am hopeful that this blog gives an opportunity for engagement with others, so please reach out if you have any feedback!
 
-## Latest Blog
+---
 
-[Using Gtest with CMake in Godbolt](blog/posts/godbolt_cmake_gtest.md) - 2024/09/20
-
-## Past Blogs
-
-[What is Invariance?](blog/posts/invariance.md) - 2024/06/16
+<small>*Subscribe to updates via [RSS Feed](/feed_rss_created.xml)*</small>
 
 ---
-<small>*Subscribe to updates via [RSS Feed](/feed_rss_created.xml)*</small>
