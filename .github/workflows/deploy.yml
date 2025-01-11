@@ -44,22 +44,29 @@ jobs:
             echo "branch_exists=false" >> $GITHUB_ENV
           fi
 
-      # Step 7: Deploy to GitHub Pages or Update Existing Preview Branch
-      - name: Deploy or Update Preview Branch
+      # Step 7a: Deploy to GitHub Pages (New Branch)
+      - name: Deploy to GitHub Pages (Preview - New Branch)
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+          publish_branch: gh-pages-preview/${{ github.event.number }}
+        if: env.branch_exists == 'false'
+
+      # Step 7b: Update Existing Preview Branch
+      - name: Update Existing Preview Branch
+        if: env.branch_exists == 'true'
         run: |
-          if [[ "${{ env.branch_exists }}" == "false" ]]; then
-            peaceiris/actions-gh-pages@v3 --github_token "${{ secrets.GITHUB_TOKEN }}" --publish_dir "./site" --publish_branch "gh-pages-preview/${{ github.event.number }}"
-          else
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git fetch origin
-            git checkout -b "gh-pages-preview/${{ github.event.number }}" || git checkout "gh-pages-preview/${{ github.event.number }}"
-            cp -r ./site/* .
-            git add .
-            git commit -m "Update Preview Branch for PR #${{ github.event.number }}"
-            git push origin "gh-pages-preview/${{ github.event.number }}"
-          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin gh-pages-preview/${{ github.event.number }}
+          git checkout gh-pages-preview/${{ github.event.number }}
+          cp -r ./site/* .
+          git add .
+          git commit -m "Update Preview Branch for PR #${{ github.event.number }}"
+          git push origin gh-pages-preview/${{ github.event.number }}
 
       # Step 8: Print Preview Site URL
       - name: Display Preview Site URL
-        run: echo "Preview Site URL: https://mokyen.github.io/okyensourcesoftware/gh-pages-preview/${{ github.event.number }}/"
+        run: |
+          echo "Preview Site URL: https://mokyen.github.io/okyensourcesoftware/gh-pages-preview/${{ github.event.number }}/"
