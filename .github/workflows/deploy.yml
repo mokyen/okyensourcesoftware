@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install mkdocs mkdocs-material mkdocs-blogging-plugin mkdocs-rss-plugin pillow cairosvg
+          pip install -r requirements.txt
       
       # Step 4: Update site_url for Preview
       - name: Update configurations for Preview
