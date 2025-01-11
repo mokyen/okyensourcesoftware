@@ -1,7 +1,10 @@
 mkdocs
 mkdocs-material
-"mkdocs-material[imaging]"
+mkdocs-material[imaging]
 pipwin
 # Then call python -m pipwin install cairocffi
 mkdocs-blogging-plugin
 mkdocs-rss-plugin
+pillow
+cairosvg
+
