@@ -28,8 +28,9 @@ jobs:
           pip install mkdocs mkdocs-material mkdocs-blogging-plugin mkdocs-rss-plugin pillow cairosvg
       
       # Step 4: Update site_url for Preview
-      - name: Update site_url for Preview
+      - name: Update configurations for Preview
         run: |
+          # Update site_url
           if grep -q "site_url:" mkdocs.yml; then
             sed -i "s|site_url: .*|site_url: https://mokyen.github.io/okyensourcesoftware-pr-${{ github.event.number }}|" mkdocs.yml
           else
