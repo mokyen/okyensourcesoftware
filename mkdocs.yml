@@ -33,15 +33,17 @@ plugins:
       post_dir: "{blog}/posts"
       post_url_format: "{slug}"
       blog_toc: true
-      authors: true
+      authors: false  # Changed to false since we're handling authors differently
   - rss:
-      feed_title: "Okyen Source Software Blog"
-      feed_description: "Stay updated with the latest blog posts on Okyen Source Software."
+      enabled: true
+      match_path: blog/posts/.*
+      date_from_meta:
+        as_creation: date
+      categories:
+        - categories
+      feed_title: Okyen Source Software Blog
+      feed_description: Stay updated with the latest blog posts
       length: 10
-      authors:
-        mokyen:
-          name: mokyen
-          url: https://github.com/mokyen
 extra_javascript:
   - https://giscus.app/client.js
 extra:
@@ -58,17 +60,16 @@ extra:
     theme: "preferred_color_scheme"
     lang: "en"
     loading: "lazy"
-  authors:
-    - name: mokyen
-      description: Software Engineer
-      url: https://github.com/mokyen
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/mokyen
 nav:
   - Home: 'index.md'
   - About:
       - 'about.md'
       - 'bio.md'
   - Blog:
-      - 'blog/_index.md'
+      - 'blog/posts/_index.md'
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
