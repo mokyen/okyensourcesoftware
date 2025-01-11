@@ -10,24 +10,27 @@ This site serves as a place for me to share some of my learnings and ideas on so
 I am hopeful that this blog gives an opportunity for engagement with others, so please reach out if you have any feedback!
 
 ## Featured Posts
+
 <!-- BEGIN FEATURED POSTS -->
-[blog-posts-featured]
+
 <!-- END FEATURED POSTS -->
 
 ---
 
 ## All Posts
 Here's a complete list of all articles, organized by date:
+
 <!-- BEGIN MONTHLY POSTS -->
-[blog-posts-monthly]
+
 <!-- END MONTHLY POSTS -->
 
 ---
 
 ## Topics
 Browse posts by category:
+
 <!-- BEGIN CATEGORIES -->
-[blog-categories]
+
 <!-- END CATEGORIES -->
 
 ---
