@@ -5,6 +5,7 @@ author:
   - mokyen
 categories:
   - Blog
+comments: true
 ---
 
 # What is Invariance?
