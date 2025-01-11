@@ -23,21 +23,32 @@ jobs:
           python -m pip install --upgrade pip
           pip install mkdocs mkdocs-material mkdocs-blogging-plugin mkdocs-rss-plugin pillow cairosvg
       
-      # Step 4: Dynamically update site_url for Preview
+      # Step 4: Remove CNAME if it exists
+      - name: Remove CNAME if exists
+        run: |
+          if [ -f "CNAME" ]; then
+            rm CNAME
+          fi
+      
+      # Step 5: Update site_url for Preview
       - name: Update site_url for Preview
         run: |
-          sed -i "s|site_url: .*|site_url: https://mokyen.github.io/okyensourcesoftware/gh-pages-preview/${{ github.event.number }}/|" mkdocs.yml
+          if grep -q "site_url:" mkdocs.yml; then
+            sed -i "s|site_url: .*|site_url: https://mokyen.github.io/okyensourcesoftware/gh-pages-preview-${{ github.event.number }}|" mkdocs.yml
+          else
+            echo "site_url: https://mokyen.github.io/okyensourcesoftware/gh-pages-preview-${{ github.event.number }}" >> mkdocs.yml
+          fi
       
-      # Step 5: Build the site
+      # Step 6: Build the site
       - name: Build the site
         run: mkdocs build
       
-      # Step 6: Check if Preview Branch Exists
+      # Step 7: Check if Preview Branch Exists
       - name: Check if Preview Branch Exists
         id: check_branch
         run: |
           git fetch --all
-          if git ls-remote --heads origin "gh-pages-preview/${{ github.event.number }}"; then
+          if git ls-remote --heads origin "gh-pages-preview-${{ github.event.number }}"; then
             echo "Branch exists"
             echo "branch_exists=true" >> $GITHUB_ENV
           else
@@ -45,16 +56,17 @@ jobs:
             echo "branch_exists=false" >> $GITHUB_ENV
           fi
       
-      # Step 7a: Deploy to GitHub Pages (New Branch)
+      # Step 8: Deploy to GitHub Pages (New Branch)
       - name: Deploy to GitHub Pages (Preview - New Branch)
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
-          publish_branch: gh-pages-preview/${{ github.event.number }}
+          publish_branch: gh-pages-preview-${{ github.event.number }}
+          cname: "" # Explicitly set no CNAME
         if: env.branch_exists == 'false'
       
-      # Step 7b: Update Existing Preview Branch
+      # Step 9: Update Existing Preview Branch
       - name: Update Existing Preview Branch
         if: env.branch_exists == 'true'
         run: |
@@ -77,9 +89,9 @@ jobs:
           git commit -m "Update Preview Branch for PR #${{ github.event.number }}"
           
           # Force push to the preview branch
-          git push origin temp-preview-branch:gh-pages-preview/${{ github.event.number }} -f
+          git push origin temp-preview-branch:gh-pages-preview-${{ github.event.number }} -f
       
-      # Step 8: Print Preview Site URL
+      # Step 10: Display Preview Site URL
       - name: Display Preview Site URL
         run: |
-          echo "Preview Site URL: https://mokyen.github.io/okyensourcesoftware/gh-pages-preview/${{ github.event.number }}/"
+          echo "Preview Site URL: https://mokyen.github.io/okyensourcesoftware/gh-pages-preview-${{ github.event.number }}/"
