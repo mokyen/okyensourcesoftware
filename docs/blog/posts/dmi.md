@@ -5,6 +5,7 @@ authors:
   - mokyen
 categories:
   - Blog
+comments: true
 ---
 
 # Decision-Making Isolation (DMI)
