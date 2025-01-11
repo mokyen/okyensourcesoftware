@@ -1,7 +1,7 @@
 ---
 date: 2024-06-16  
 title: "Decision-Making Isolation (DMI)"
-authors:
+author:
   - mokyen
 categories:
   - Blog
