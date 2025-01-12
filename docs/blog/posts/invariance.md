@@ -1,3 +1,13 @@
+---
+date: 2024-06-16  
+title: "What is Invariance?"
+author:
+  - mokyen
+categories:
+  - Blog
+comments: true
+---
+
 # What is Invariance?
 
 The term 'invariant' is one of the linchpins of Decision Making Isolation. It is used in the [Cpp Core Guidelines](https://isocpp.github.io/CppCoreGuidelines) as the reason to use a class versus struct. But what does it really mean?
@@ -10,6 +20,8 @@ Before we discuss invariance, let's take a look at what else the [Cpp Core Guide
 Reason: Readability. To make it clear that something is being hidden/abstracted. This is a useful *convention*.
 
 While `class` and `struct` are relatively equivalent in C++, the Guidelines set the *convention* that structs are intended to only contain public members. Because all public data members can be directly modified, I believe it can be inferred that structs also shouldn't have public member functions. In the forthcoming [Decision Making Isolation (DMI) blog](dmi.md), we'll go more into the preference for free functions. For now, we'll assume that structs only have public data members and no functions.
+
+<!-- more -->
 
 * [C.2](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c2-use-class-if-the-class-has-an-invariant-use-struct-if-the-data-members-can-vary-independently): Use `class` if the class has an invariant; use `struct` if the data members can vary independently.
 Reason:

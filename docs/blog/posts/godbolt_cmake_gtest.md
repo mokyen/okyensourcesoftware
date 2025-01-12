@@ -1,3 +1,13 @@
+---
+date: 2024-09-18  
+title: "Using Gtest with CMake in Godbolt"
+author:
+  - mokyen
+categories:
+  - Blog
+comments: true
+---
+
 # Using Gtest with CMake in Godbolt
 
 ## TL;DR
@@ -11,6 +21,8 @@ Compiler Explorer (CE), also known as godbolt.org, has been a game-changer for m
 One of CE's most powerful applications is in learning how to perform Test Driven Development (TDD). Previously, setting up a TDD environment could take hours. With CE and some guidance from [Niall Cooling's blog](https://blog.feabhas.com/2020/08/tdd-with-compiler-explorer/), I was able to start unit testing in under two minutes. This accessibility extends to various devices, from desktops to tablets, and even smartphones (though mobile usage has its limitations).
 
 While CE's Gtest integration works seamlessly for single-file projects, things get more complex when you need to separate source code and unit tests. This blog post will guide you through setting up Gtest with CMake in Compiler Explorer for multi-file projects, sharing insights from my experience and offering solutions to common challenges.
+
+<!-- more -->
 
 ## Why This Matters
 
