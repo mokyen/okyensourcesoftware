@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-{{ super() }}
+  {{ super() }}
 
-{% if page.meta.comments %}
+  {% if page.meta.comments %}
     <h2>Comments</h2>
     <script src="https://giscus.app/client.js"
         data-repo="mokyen/okyensourcesoftware"
@@ -22,5 +22,5 @@
         async>
     </script>
     <div class="giscus"></div>
-{% endif %}
+  {% endif %}
 {% endblock %}
