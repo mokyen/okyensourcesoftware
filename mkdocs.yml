@@ -42,22 +42,22 @@ plugins:
       feed_title: Okyen Source Software Blog
       feed_description: Stay updated with the latest blog posts
       length: 10
-extra_javascript:
-  - https://giscus.app/client.js
+# extra_javascript:
+#   - https://giscus.app/client.js
 extra:
-  giscus:
-    repo: "mokyen/okyensourcesoftware"
-    repo_id: "R_kgDOK-mjQw"
-    category: "Blog Comments"
-    category_id: "DIC_kwDOK-mjQ84Cl7Cj"
-    mapping: "pathname"
-    strict: "0"
-    reactions_enabled: "1"
-    emit_metadata: "0"
-    input_position: "top"
-    theme: "preferred_color_scheme"
-    lang: "en"
-    loading: "lazy"
+  # giscus:
+  #   repo: "mokyen/okyensourcesoftware"
+  #   repo_id: "R_kgDOK-mjQw"
+  #   category: "Blog Comments"
+  #   category_id: "DIC_kwDOK-mjQ84Cl7Cj"
+  #   mapping: "pathname"
+  #   strict: "0"
+  #   reactions_enabled: "1"
+  #   emit_metadata: "0"
+  #   input_position: "top"
+  #   theme: "preferred_color_scheme"
+  #   lang: "en"
+  #   loading: "lazy"
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/mokyen
