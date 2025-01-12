@@ -21,6 +21,8 @@ Reason: Readability. To make it clear that something is being hidden/abstracted.
 
 While `class` and `struct` are relatively equivalent in C++, the Guidelines set the *convention* that structs are intended to only contain public members. Because all public data members can be directly modified, I believe it can be inferred that structs also shouldn't have public member functions. In the forthcoming [Decision Making Isolation (DMI) blog](dmi.md), we'll go more into the preference for free functions. For now, we'll assume that structs only have public data members and no functions.
 
+<!-- more -->
+
 * [C.2](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c2-use-class-if-the-class-has-an-invariant-use-struct-if-the-data-members-can-vary-independently): Use `class` if the class has an invariant; use `struct` if the data members can vary independently.
 Reason:
 Readability. Ease of comprehension. The use of class alerts the programmer to the need for an invariant. This is a useful *convention*.
