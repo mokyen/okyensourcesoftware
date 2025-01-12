@@ -1,7 +1,7 @@
 ---
 hide:
     - navigation
-title: Okyen Source Software Blog
+title: Blog
 description: Insights on software development, testing, and design
 ---
 
