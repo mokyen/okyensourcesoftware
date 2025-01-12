@@ -22,6 +22,8 @@ One of CE's most powerful applications is in learning how to perform Test Driven
 
 While CE's Gtest integration works seamlessly for single-file projects, things get more complex when you need to separate source code and unit tests. This blog post will guide you through setting up Gtest with CMake in Compiler Explorer for multi-file projects, sharing insights from my experience and offering solutions to common challenges.
 
+<!-- more -->
+
 ## Why This Matters
 
 As your projects grow, separating source code and unit tests becomes crucial for maintainability. This division becomes required if you're creating a library that you want to be usable by others. However, this separation often introduces complexity, especially when working with online tools like Compiler Explorer. By mautilizing  the setup of Gtest with CMake in CE, you can:
