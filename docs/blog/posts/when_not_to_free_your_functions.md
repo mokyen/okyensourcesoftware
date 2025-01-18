@@ -10,6 +10,8 @@ However, when I attended C++Now in 2024, I learned something surprising: Bloombe
 
 So, what is the One Definition Rule? It’s a foundational principle in C++ that states a function (or variable) can only be defined once within a given scope or namespace. The C++ standard has formal language to define this, but the gist is simple: duplicate definitions are a big no-no.
 
+---
+
 ## _...But I scope my free functions in a namespace, so I'm good, right?_
 
 Well, it's not quite that simple.
@@ -209,6 +211,7 @@ namespace myNamespace {
         return 0;
     }
 }
+```
 
 ---
 
