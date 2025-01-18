@@ -51,7 +51,164 @@ int main() {
 }
 ```
 
-TBD: Description of the code
+Here are some further examples.
+
+# Example 1: Multiple Using Declarations in Different Namespaces
+
+```cpp
+// file1.cpp
+namespace companyA {
+    void send() {
+        std::cout << "Sending from company A\n";
+    }
+}
+
+// file2.cpp
+namespace companyB {
+    void send() {
+        std::cout << "Sending from company B\n";
+    }
+}
+
+// file3.cpp
+namespace companyC {
+    void send() {
+        std::cout << "Sending from company C\n";
+    }
+}
+
+// main.cpp
+#include "file1.cpp"
+#include "file2.cpp"
+#include "file3.cpp"
+using namespace companyA; // Using declaration for companyA's send function
+using namespace companyB; // Using declaration for companyB's send function
+
+namespace myNamespace {
+    int main() {
+        send(); // Ambiguity: Which send function will the linker choose?
+        return 0;
+    }
+}
+```
+
+# Example 2: Using Directives in Different Namespaces
+
+```cpp
+// file1.cpp
+namespace companyA {
+    void send() {
+        std::cout << "Sending from company A\n";
+    }
+}
+
+// file2.cpp
+namespace companyB {
+    void send() {
+        std::cout << "Sending from company B\n";
+    }
+}
+
+// file3.cpp
+namespace companyC {
+    void send() {
+        std::cout << "Sending from company C\n";
+    }
+}
+
+// main.cpp
+#include "file1.cpp"
+#include "file2.cpp"
+#include "file3.cpp"
+using namespace companyA; // Using directive for companyA's send function
+using namespace companyB; // Using directive for companyB's send function
+
+namespace myNamespace {
+    int main() {
+        send(); // Ambiguity: Which send function will the linker choose?
+        return 0;
+    }
+}
+```
+
+# Example 3: Using Declarations with Nested Namespaces
+
+```cpp
+// file1.cpp
+namespace companyA {
+    void send() {
+        std::cout << "Sending from company A\n";
+    }
+}
+
+// file2.cpp
+namespace companyB {
+    void send() {
+        std::cout << "Sending from company B\n";
+    }
+}
+
+// file3.cpp
+namespace companyC {
+    void send() {
+        std::cout << "Sending from company C\n";
+    }
+}
+
+// main.cpp
+#include "file1.cpp"
+#include "file2.cpp"
+#include "file3.cpp"
+using companyA::send; // Using declaration for companyA's send function
+
+namespace myNamespace {
+    using companyB::send; // Using declaration for companyB's send function
+
+    int main() {
+        send(); // Ambiguity: Which send function will the linker choose?
+        return 0;
+    }
+}
+```
+
+# Example 4: Using Directives with Nested Namespaces
+
+```cpp
+// file1.cpp
+namespace companyA {
+    void send() {
+        std::cout << "Sending from company A\n";
+    }
+}
+
+// file2.cpp
+namespace companyB {
+    void send() {
+        std::cout << "Sending from company B\n";
+    }
+}
+
+// file3.cpp
+namespace companyC {
+    void send() {
+        std::cout << "Sending from company C\n";
+    }
+}
+
+// main.cpp
+#include "file1.cpp"
+#include "file2.cpp"
+#include "file3.cpp"
+using namespace companyA; // Using directive for companyA's send function
+
+namespace myNamespace {
+    using namespace companyB; // Using directive for companyB's send function
+
+    int main() {
+        send(); // Ambiguity: Which send function will the linker choose?
+        return 0;
+    }
+}
 
 ---
 
