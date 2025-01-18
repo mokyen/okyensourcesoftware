@@ -215,7 +215,7 @@ namespace myNamespace {
 
 ---
 
-## Possible Solutions
+## So how do we avoid this?
 
 What can we do to avoid these issues? Here are some approaches:
 
@@ -225,7 +225,7 @@ Fully scoping the names of your functions leaves no ambiguity for the compiler. 
 
 ### **Option 2: Use Member Functions**
 
-You could avoid free functions altogether and use member functions inside classes. But as I’ve discussed in previous articles, this is often unnecessary unless the function logically belongs to the class.
+You could avoid free functions altogether and use member functions inside classes. However,  as I've described in my article on DMI, I am not a fan of the "everything's an object" philosophy.
 
 ### **Option 3: Use Descriptive Function Names**
 
@@ -245,7 +245,7 @@ Sometimes, you just decide to live with the risk. If your codebase is small and 
 
 ### **Option 7: Compiler Flags?**
 
-Are there compiler flags that can help catch or prevent these issues? This is something I need to research further.
+TBD: Are there compiler flags that can help catch or prevent these issues? This is something I need to research further.
 
 ---
 
