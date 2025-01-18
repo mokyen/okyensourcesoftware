@@ -239,6 +239,42 @@ Tools can enforce naming conventions and flag overlaps. This approach is prefera
 
 This is Bloomberg’s solution. By using static functions inside classes, you ensure that the function name must be qualified by the class name. This drastically reduces the chance of ODR violations. The downside? It adds a layer of verbosity and may obscure the intention of certain utility functions that don’t naturally belong to a specific class.
 
+```cpp
+#include <iostream>
+
+class Utility {
+public:
+    // Static function to print a message
+    static void printMessage(const std::string& message) {
+        std::cout << message << std::endl;
+    }
+
+    // Static function to add two integers
+    static int add(int a, int b) {
+        return a + b;
+    }
+
+    // Static function to calculate the factorial of a number
+    static int factorial(int n) {
+        if (n <= 1) {
+            return 1;
+        }
+        return n * factorial(n - 1);
+    }
+};
+
+int main() {
+    // Using static functions
+    Utility::printMessage("Hello from Utility class!");
+    std::cout << "Sum: " << Utility::add(5, 3) << std::endl;
+    std::cout << "Factorial of 5: " << Utility::factorial(5) << std::endl;
+
+    return 0;
+}
+```
+
+In this example, the `Utility` class contains only static functions, which means you don't need to create an instance of the class to use them. You can call these functions directly using the class name, like `Utility::printMessage("Hello")`.
+
 ### **Option 6: Use Free Functions and Accept the Risk**
 
 Sometimes, you just decide to live with the risk. If your codebase is small and well-contained, the chances of an ODR violation are minimal.
