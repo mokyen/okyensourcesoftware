@@ -55,7 +55,7 @@ int main() {
 
 Here are some further examples.
 
-# Example 1: Multiple Using Declarations in Different Namespaces
+### Example 1: Multiple Using Declarations in Different Namespaces
 
 ```cpp
 // file1.cpp
@@ -94,7 +94,7 @@ namespace myNamespace {
 }
 ```
 
-# Example 2: Using Directives in Different Namespaces
+### Example 2: Using Directives in Different Namespaces
 
 ```cpp
 // file1.cpp
@@ -133,7 +133,7 @@ namespace myNamespace {
 }
 ```
 
-# Example 3: Using Declarations with Nested Namespaces
+### Example 3: Using Declarations with Nested Namespaces
 
 ```cpp
 // file1.cpp
@@ -173,7 +173,7 @@ namespace myNamespace {
 }
 ```
 
-# Example 4: Using Directives with Nested Namespaces
+### Example 4: Using Directives with Nested Namespaces
 
 ```cpp
 // file1.cpp
