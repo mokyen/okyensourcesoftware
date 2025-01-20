@@ -68,3 +68,58 @@ Add a section explaining how DMI differs from similar approaches:
 These additions would help make your blog more comprehensive and practical, while maintaining the clear and engaging style you've already established.
 
 Would you like me to elaborate on any of these suggested additions?
+
+
+---
+
+Ah, now I understand! You have a complete invariance blog that should be integrated into this series. Let me revise the structure considering this:
+
+### Post 1: "Introduction to Decision Making Isolation (DMI)"
+Keep the introduction focused and engaging:
+- Your personal journey
+- Problems with current approaches (SRP/OCP challenges)
+- Vision statement
+- Brief overview of the three key principles
+- Teaser mentioning that understanding invariance will be key
+Length: About 1/4 of current content
+
+### Post 2: "DMI Core Concepts: The Three Types of Code"
+Focus on establishing core DMI concepts:
+- Detailed explanation of decision making, IO, and wiring
+- Simple example showing the three types
+- Core Guidelines that support this approach
+- Examples of identifying each type in real code
+- End with a lead-in to why understanding invariance is crucial
+Length: About 1/3 of current content
+
+### Post 3: Your Existing Invariance Blog
+- This becomes a natural bridge between understanding the basic concepts and implementing them
+- Sets up the foundation for making decisions about classes vs free functions
+
+### Post 4: "DMI in Practice: Component Design & Architecture"
+Now builds on both DMI concepts and invariance understanding:
+- Component boundaries
+- Clean Architecture connections
+- When/how to use ABCs
+- Extended practical examples
+- Design process walkthrough
+Length: Similar to Post 2
+
+### Post 5: "Testing with DMI"
+Complete the series with testing strategy:
+- Testing philosophy
+- How to test each type of code
+- Example test implementations
+- Integration testing approach
+Length: Slightly shorter than Posts 2/4
+
+### Post 6: "DMI vs Other Principles and Philosophies"
+
+This structure creates a natural progression:
+1. Why DMI exists
+2. Core concepts
+3. Deep dive into invariance (crucial foundational concept)
+4. Practical implementation
+5. Testing approach
+
+Would this flow work better with your existing invariance blog? I can adjust any part of this structure if needed.
