@@ -11,3 +11,4 @@
 11. The rooms at the resort are awesome
 12. People are super welcoming if you want to join a group
 13. Flights in and out of Aspen can be impacted by the weather, so build in enough layover time in Denver and don't take the last flight
+14. Slides for the presentations are posted in discord pretty quickly (often before the talk). You don't need to take pictures of slides for your notes, but recording slide numbers can be useful.
