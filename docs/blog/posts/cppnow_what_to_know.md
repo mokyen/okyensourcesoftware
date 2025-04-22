@@ -10,7 +10,7 @@ comments: true
 
 # C++Now: What to Know Before You Go
 
-I am so excited that C++Now is just around the corner! Unfortunately, I won't be able to attend this year, but I wanted to share some insights from my previous experience to help first-timers and returning attendees prepare for this fantastic event. Here are my top 14 tips to make your C++Now experience even better:
+I am so excited that C++Now is just around the corner! Unfortunately, I won't be able to attend this year, but I wanted to share some insights from my previous experience to help first-timers and returning attendees prepare for this fantastic event. Here are my top 15 tips to make your C++Now experience even better:
 
 ## 🥾 Pack boots or good walking shoes for grass
 
@@ -69,6 +69,10 @@ Flights in and out of Aspen can be significantly affected by weather conditions,
 ## 📊 Presentation slides available on Discord
 
 Slides for the presentations are posted on Discord quite quickly, often even before the presentations begin. Many people take pictures of slides, but this isn't usually necessary. Instead, focus on the presentation and take notes. It can be valuable to jot down slide numbers for later reference, but you probably don't need to capture everything in the moment.
+
+## 🎤 Supportive audience for speakers
+
+If you're presenting at C++Now, remember that everyone wants you to succeed! The audience is there to learn and grow, not to challenge you or make you look bad. The C++ community at this conference is incredibly supportive and genuinely interested in what you have to share. Don't stress too much about your presentation—just have fun with it and enjoy sharing your knowledge with fellow enthusiasts!
 
 
 
