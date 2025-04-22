@@ -1,3 +1,13 @@
+---
+date: 2025-04-22
+title: "C++Now: What to Know Before You Go"
+author:
+  - mokyen
+categories:
+  - Blog
+comments: true
+---
+
 # C++Now: What to Know Before You Go
 
 I am so excited that C++Now is just around the corner! Unfortunately, I won't be able to attend this year, but I wanted to share some insights from my previous experience to help first-timers and returning attendees prepare for this fantastic event. Here are my top 14 tips to make your C++Now experience even better:
