@@ -1,7 +1,7 @@
 1. Boots or good shoes for walking in grass
 2. Weatherproof jacket (consider various weather conditions)
 3. Fitness center & pool
-4. The building is pronounced Beta
+4. The building Bethe is pronounced "Beta"
 5. Sitting in the front row is for speakers at lightning talks
 6. Chapstick
 7. Aspen is rather shut down, so restaurant options are limited, especially for people with allergies
