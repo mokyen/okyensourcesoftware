@@ -16,6 +16,8 @@ I am so excited that C++Now is just around the corner! Unfortunately, I won't be
 
 Bring comfortable walking shoes that can handle going through grass. The walk from the hotels to the conference rooms takes about 10 minutes. There's a shortcut between conference venues that cuts through a field, so having shoes that can handle varied terrain is key, especially since the weather can be unpredictable. We even had snow last year!
 
+<!-- more -->
+
 ## 🧥 Being a weatherproof jacket
 
 Weather conditions can really vary at this time of year in Aspen. A rainproof jacket is definitely important, and layers are highly recommended. Temperatures can range from snowy conditions to relatively mild, so be prepared for anything.
